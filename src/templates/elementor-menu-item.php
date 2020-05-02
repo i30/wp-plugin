@@ -9,12 +9,13 @@ $item_settings = get_post_meta($post->ID, '_elementor_page_settings', true);
 $menu_settings = get_option($stylesheet . '_mod_sc_mm4ep_' . $menu_obj->slug, []);
 $menu_settings = sc_mm4ep_parse_nav_menu_settings($menu_settings);
 $elementor->frontend->add_body_class('elementor-template-full-width');
+
 $args = [
-	'echo' => false,
+	'echo' => true,
 	'menu' => $menu_id,
 	'menu_class' => 'elementor-nav-menu',
 	'menu_id' => 'menu-1-' . $post->ID,
-	'fallback_cb' => '__return_empty_string',
+	'fallback_cb' => false,
 	'container' => '',
 ];
 
@@ -31,18 +32,6 @@ if ('vertical' === $menu_settings['layout']) {
 add_filter('nav_menu_item_id', '__return_empty_string');
 add_filter('nav_menu_submenu_css_class', 'sc_handle_sub_menu_classes');
 add_filter('nav_menu_link_attributes', 'sc_handle_link_classes', 10, 4);
-
-// General Menu.
-$menu_html = wp_nav_menu($args);
-
-// Dropdown Menu.
-$args['menu_id'] = 'menu-2-' . $post->ID;
-$dropdown_menu_html = wp_nav_menu($args);
-
-// Remove all our custom filters.
-remove_filter('nav_menu_item_id', '__return_empty_string');
-remove_filter('nav_menu_link_attributes', 'sc_handle_link_classes');
-remove_filter('nav_menu_submenu_css_class', 'sc_handle_sub_menu_classes');
 
 $menu_toggle_html_class = 'elementor-menu-toggle';
 $menu_container_html_class = 'elementor-nav-menu--main elementor-nav-menu__container';
@@ -71,7 +60,8 @@ if ('none' !== $menu_settings['dropdown']) {
     <?php wp_head(); ?>
 </head>
 <body <?php body_class('elementor-' . $menu_settings['post_id']); ?>>
-<div id="menu-wrapper" class="<?php echo $menu_wrapper_html_class ?>" data-id="<?php echo $menu_settings['el_id'] ?>" data-settings='<?php echo $data_settings ?>' data-element_type="widget" data-widget_type="nav-menu.default">
+<div id="menu-scope" class="<?php echo esc_attr($menu_wrapper_html_class) ?> elementor-widget elementor-widget-nav-menu" data-id="<?php echo esc_attr($menu_settings['el_id']) ?>" data-settings='<?php echo esc_js($data_settings) ?>' data-element_type="widget" data-widget_type="nav-menu.default">
+<div class="elementor-widget-container">
 <?php
 	if ('dropdown' !== $menu_settings['layout']) :
 	$menu_container_html_class .= ' elementor-nav-menu--layout-' . $menu_settings['layout'];
@@ -84,14 +74,21 @@ if ('none' !== $menu_settings['dropdown']) {
             }
         }
     }
-    ?><nav class="<?php echo $menu_container_html_class ?>"><?php echo $menu_html; ?></nav><?php
+    ?>
+    <nav class="<?php echo esc_attr($menu_container_html_class) ?>">
+        <?php wp_nav_menu($args); ?>
+    </nav>
+    <?php
 	endif;
 	?>
-	<div role="button" tabindex="0" aria-label="<?php _e('Menu Toggle', 'textdomain') ?>" aria-expanded="false" class="<?php echo $menu_toggle_html_class ?>">
+	<div role="button" tabindex="0" aria-label="<?php esc_attr_e('Menu Toggle', 'textdomain') ?>" aria-expanded="false" class="<?php echo esc_attr($menu_toggle_html_class) ?>">
 		<i class="eicon-menu-bar" aria-hidden="true"></i>
-		<span class="elementor-screen-only"><?php _e('Menu', 'textdomain'); ?></span>
+		<span class="elementor-screen-only"><?php esc_html_e('Menu', 'textdomain'); ?></span>
 	</div>
-	<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" role="navigation" aria-hidden="true"><?php echo $dropdown_menu_html; ?></nav>
+	<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" role="navigation" aria-hidden="true">
+        <?php $args['menu_id'] = 'menu-2-' . $post->ID; wp_nav_menu($args); ?>
+    </nav>
+</div>
 </div>
 <?php
 
@@ -101,7 +98,7 @@ wp_footer();
 
 ?>
 <script type="text/javascript">
-    jQuery(() => elementorFrontend.elementsHandler.runReadyTrigger(jQuery("#menu-wrapper")[0]))
+    jQuery(() => elementorFrontend.elementsHandler.runReadyTrigger(jQuery("#menu-scope")[0]))
 </script>
 </body>
 </html>

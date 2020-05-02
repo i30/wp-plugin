@@ -1,6 +1,6 @@
 ! function(k) {
     "use strict";
-
+jQuery("#elementor-mode-switcher-preview-input").on("change", (e) => jQuery(e.currentTarget).is(":checked") ? console.log("preview") : console.log("edit"));
     function e(s) {
         var c = {},
             a = (s = s, null),
