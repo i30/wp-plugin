@@ -7,6 +7,20 @@ use Elementor\Scheme_Color;
 use Elementor\Controls_Manager;
 
 /**
+ * Enqueue editor scripts
+ */
+function sc_mm4ep_enqueue_editor_scripts()
+{
+    global $post;
+
+    if ('elementor_menu_item' !== $post->post_type)
+        return;
+
+    wp_enqueue_script('menu-item-controls', ELEMENTOR_PRO_MEGAMENU_URI . 'assets/js/menu-item-controls.min.js', ['elementor-editor'], ELEMENTOR_PRO_MEGAMENU_VER, true);
+}
+add_action('elementor/editor/after_enqueue_scripts', 'sc_mm4ep_enqueue_editor_scripts', 10, 0);
+
+/**
  * Enqueue edit stylesheet
  */
 function sc_mm4ep_enqueue_edit_css($hook_suffix)
