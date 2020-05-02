@@ -6,7 +6,8 @@ module.exports = {
   context: __dirname + '/assets',
   entry: {
     'menu-editor': './js/menu-editor.js',
-    'menu-item-editor': './js/menu-item-editor.js'
+    'menu-item-editor': './js/menu-item-editor.js',
+    'menu-item-controls': './js/menu-item-controls.js'
   },
   output: {
     path: __dirname + '/assets/js',
