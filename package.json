@@ -1,14 +1,14 @@
 {
-  "name": "wp-plugin",
+  "name": "mega-menu-for-elementor-pro",
   "version": "1.0.0",
-  "description": "My barebone WP plugin",
+  "description": "An Elementor Pro addon that helps you add mega menus, menu icons and menu badges.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/i30/wp-plugin.git"
+    "url": "git+https://github.com/i30/mega-menu-for-elementor-pro.git"
   },
   "keywords": [
     "wordpress",
@@ -17,14 +17,19 @@
   "author": "i30",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/i30/wp-plugin/issues"
+    "url": "https://github.com/i30/mega-menu-for-elementor-pro/issues"
   },
-  "homepage": "https://github.com/i30/wp-plugin#readme",
+  "homepage": "https://github.com/i30/mega-menu-for-elementor-pro#readme",
   "devDependencies": {
     "@babel/core": "^7.9.0",
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-react": "^7.9.4",
     "babel-loader": "^8.1.0",
+    "css-loader": "^3.5.3",
+    "mini-css-extract-plugin": "^0.9.0",
+    "sass": "^1.26.5",
+    "sass-loader": "^8.0.2",
+    "style-loader": "^1.2.1",
     "webpack": "^4.43.0"
   }
 }

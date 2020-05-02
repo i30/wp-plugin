@@ -1,21 +1,51 @@
-const path = require('path');
+const path = require('path'),
+    MiniCss = require('mini-css-extract-plugin');
 
-// Sample configs.
 module.exports = {
   mode: 'development',
+  context: __dirname + '/assets',
   entry: {
-    // Enter your entries here {name:file}.
+    'menu-editor': './js/menu-editor.js',
+    'menu-item-editor': './js/menu-item-editor.js'
   },
   output: {
-    path: path.resolve(__dirname, 'assets/js'),
+    path: __dirname + '/assets/js',
     filename: '[name].min.js'
   },
+  plugins: [
+    new MiniCss({
+      filename: '../css/[name].min.css'
+    }),
+  ],
   module: {
-    rules: [{
-      test: /\.js$/,
-      exclude: /node_modules/,
-      loader: 'babel-loader'
-    }]
+    rules: [
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader'
+      },
+      {
+        test: /\.scss$/,
+        use: [
+          {
+            loader: MiniCss.loader,
+            options: {
+              hmr: false
+            },
+          },
+          'css-loader',
+          {
+            loader: 'sass-loader',
+            options: {
+              sourceMap: false,
+              sassOptions: {
+                outputStyle: 'compressed'
+              }
+            }
+          }
+        ]
+      }
+    ]
   },
   externals: {
     'lodash': 'lodash',
