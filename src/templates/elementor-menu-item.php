@@ -28,11 +28,6 @@ if ('vertical' === $menu_settings['layout']) {
 	$args['menu_class'] .= ' sm-vertical';
 }
 
-// Add custom filter to handle Nav Menu HTML output.
-add_filter('nav_menu_item_id', '__return_empty_string');
-add_filter('nav_menu_submenu_css_class', 'sc_handle_sub_menu_classes');
-add_filter('nav_menu_link_attributes', 'sc_handle_link_classes', 10, 4);
-
 $menu_toggle_html_class = 'elementor-menu-toggle';
 $menu_container_html_class = 'elementor-nav-menu--main elementor-nav-menu__container';
 $menu_wrapper_html_class = 'elementor-element elementor-element-' . $menu_settings['el_id'] . ' elementor-nav-menu--indicator-' . $menu_settings['indicator'];
@@ -60,43 +55,42 @@ if ('none' !== $menu_settings['dropdown']) {
     <?php wp_head(); ?>
 </head>
 <body <?php body_class('elementor-' . $menu_settings['post_id']); ?>>
-<div id="menu-scope" class="<?php echo esc_attr($menu_wrapper_html_class) ?> elementor-widget elementor-widget-nav-menu" data-id="<?php echo esc_attr($menu_settings['el_id']) ?>" data-settings='<?php echo esc_js($data_settings) ?>' data-element_type="widget" data-widget_type="nav-menu.default">
-<div class="elementor-widget-container">
-<?php
-	if ('dropdown' !== $menu_settings['layout']) :
-	$menu_container_html_class .= ' elementor-nav-menu--layout-' . $menu_settings['layout'];
-	if ($menu_settings['pointer']) {
-		$menu_container_html_class .= ' e--pointer-' . $menu_settings['pointer'];
-		foreach ($menu_settings as $key => $value) {
-			if (0 === strpos($key, 'animation') && $value) {
-				$menu_container_html_class .= ' e--animation-' . $value;
-				break;
+<div id="preview-scope">
+    <div id="menu-scope" class="<?php echo esc_attr($menu_wrapper_html_class) ?> elementor-widget elementor-widget-nav-menu" data-id="<?php echo esc_attr($menu_settings['el_id']) ?>" data-settings='<?php echo esc_js($data_settings) ?>' data-element_type="widget" data-widget_type="nav-menu.default">
+        <div class="elementor-widget-container">
+        <?php
+        	if ('dropdown' !== $menu_settings['layout']) :
+        	$menu_container_html_class .= ' elementor-nav-menu--layout-' . $menu_settings['layout'];
+        	if ($menu_settings['pointer']) {
+        		$menu_container_html_class .= ' e--pointer-' . $menu_settings['pointer'];
+        		foreach ($menu_settings as $key => $value) {
+        			if (0 === strpos($key, 'animation') && $value) {
+        				$menu_container_html_class .= ' e--animation-' . $value;
+        				break;
+                    }
+                }
             }
-        }
-    }
-    ?>
-    <nav class="<?php echo esc_attr($menu_container_html_class) ?>">
-        <?php wp_nav_menu($args); ?>
-    </nav>
-    <?php
-	endif;
-	?>
-	<div role="button" tabindex="0" aria-label="<?php esc_attr_e('Menu Toggle', 'textdomain') ?>" aria-expanded="false" class="<?php echo esc_attr($menu_toggle_html_class) ?>">
-		<i class="eicon-menu-bar" aria-hidden="true"></i>
-		<span class="elementor-screen-only"><?php esc_html_e('Menu', 'textdomain'); ?></span>
-	</div>
-	<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" role="navigation" aria-hidden="true">
-        <?php $args['menu_id'] = 'menu-2-' . $post->ID; wp_nav_menu($args); ?>
-    </nav>
+            ?>
+            <nav class="<?php echo esc_attr($menu_container_html_class) ?>">
+                <?php wp_nav_menu($args); ?>
+            </nav>
+            <?php
+        	endif;
+        	?>
+        	<div role="button" tabindex="0" aria-label="<?php esc_attr_e('Menu Toggle', 'textdomain') ?>" aria-expanded="false" class="<?php echo esc_attr($menu_toggle_html_class) ?>">
+        		<i class="eicon-menu-bar" aria-hidden="true"></i>
+        		<span class="elementor-screen-only"><?php esc_html_e('Menu', 'textdomain'); ?></span>
+        	</div>
+        	<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" role="navigation" aria-hidden="true">
+                <?php $args['menu_id'] = 'menu-2-' . $post->ID; wp_nav_menu($args); ?>
+            </nav>
+        </div>
+    </div>
+    <div id="content-scope">
+    <?php $elementor->modules_manager->get_modules('page-templates')->print_content(); ?>
+    </div>
 </div>
-</div>
-<?php
-
-$elementor->modules_manager->get_modules('page-templates')->print_content();
-
-wp_footer();
-
-?>
+<?php wp_footer(); ?>
 <script type="text/javascript">
     jQuery(() => elementorFrontend.elementsHandler.runReadyTrigger(jQuery("#menu-scope")[0]))
 </script>

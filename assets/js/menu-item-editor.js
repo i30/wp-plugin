@@ -1,15 +1,11 @@
 export default function MenuItemEditor(item) {
     let self = this, $ = jQuery;
 
-    if (item.hasClass("menu-item-depth-0")) {
-        self.isChild = false
-    } else {
-        self.isChild = true;
-    }
 
     self.popUp = $($("#mm4ep-item-editor-popup").html());
     self.menuId = $("input#menu").val();
     self.itemId = $("input.menu-item-data-db-id", item).val();
+    self.itemTitle = $(".menu-item-title", item).text();
     self.settings = {};
 
     if (!_.isEmpty(scMmm4epItems[self.itemId])) {
@@ -27,7 +23,15 @@ export default function MenuItemEditor(item) {
     }
 
     self.openPopup = function() {
-        window.clever_mega_menu_item_title = $(".edit-menu-item-title", item).val();
+        if (item.hasClass("menu-item-depth-0")) {
+            self.isChild = false
+        } else {
+            self.isChild = true;
+        }
+
+        if ($('input.menu-item-data-parent-id[value="' + self.itemId + '"]').length) {
+            self.isFlyout = true;
+        }
 
         if ($("#mm4ep-menu-id-" + self.itemId).length < 1) {
             self.popUp.append('<div class="eicon-editor-close mm4ep-close-item-editor"></div><iframe id="mm4ep-item-frame-' + self.itemId + '" src="' + scMmm4epConfig.editUrl + "&mm4ep_menu_id=" + self.menuId + "&mm4ep_menu_item_id=" + self.itemId + '"></iframe>').attr("id", "mm4ep-menu-id-" + self.itemId).css({
@@ -40,6 +44,8 @@ export default function MenuItemEditor(item) {
         }
 
         $("#mm4ep-menu-id-" + self.itemId).show();
+
+        window.currentMenuItem = self;
     }
 
     $(".mm4ep-item-edit-btn", item).on("click", e => self.openPopup());

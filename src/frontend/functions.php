@@ -21,6 +21,6 @@ function sc_mm4ep_parse_nav_menu_settings(array $settings)
         // 'full_width' =>
         'text_align' => 'aside',
         'toggle' => 'burger',
-        'toggle_align' => 'center',
+        'toggle_align' => 'center'
     ], $settings);
 }

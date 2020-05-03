@@ -5,6 +5,8 @@
 
 use Elementor\Scheme_Color;
 use Elementor\Controls_Manager;
+use Elementor\Group_Control_Typography;
+use Elementor\Core\Schemes\Typography;
 
 /**
  * Enqueue editor scripts
@@ -17,6 +19,11 @@ function sc_mm4ep_enqueue_editor_scripts()
         return;
 
     wp_enqueue_script('menu-item-controls', ELEMENTOR_PRO_MEGAMENU_URI . 'assets/js/menu-item-controls.min.js', ['elementor-editor'], ELEMENTOR_PRO_MEGAMENU_VER, true);
+
+    wp_localize_script('menu-item-controls', 'scMmm4epI18n', [
+        'new' => esc_html__('New', 'textdomain'),
+        'menuItemSettings' => esc_html__('Menu Item Settings', 'textdomain')
+    ]);
 }
 add_action('elementor/editor/after_enqueue_scripts', 'sc_mm4ep_enqueue_editor_scripts', 10, 0);
 
@@ -39,7 +46,10 @@ function sc_mm4ep_print_edit_scripts()
     global $nav_menu_selected_id;
 
     $settings = (array)get_term_meta($nav_menu_selected_id, 'sc_mm4ep_settings', true);
-    $settings = array_merge(['is_elementor' => 0], $settings);
+    $settings = array_merge([
+        'is_elementor' => 0,
+        'schema_markup' => 0
+    ], $settings);
 
     ?>
     <script type="text/template" id="mm4ep-item-editor-popup">
@@ -53,6 +63,13 @@ function sc_mm4ep_print_edit_scripts()
                 <div class="menu-settings-input checkbox-input">
                     <input id="mm4ep-is-elementor" type="checkbox" value="1" <?php checked($settings['is_elementor'], 1) ?> name="sc_mm4ep_settings[is_elementor]">
                     <label for="mm4ep-is-elementor"><?php esc_html_e('Make menu items editable with Elementor or not.', 'textdomain') ?></label>
+                </div>
+            </fieldset>
+            <fieldset class="menu-settings-group">
+                <legend class="menu-settings-group-name howto"><?php esc_html_e('Schema markup', 'textdomain'); ?></legend>
+                <div class="menu-settings-input checkbox-input">
+                    <input id="mm4ep-schema-markup" type="checkbox" value="1" <?php checked($settings['schema_markup'], 1) ?> name="sc_mm4ep_settings[schema_markup]">
+                    <label for="mm4ep-schema-markup"><?php echo sprintf(esc_html__('Whether to add %sschema markups%s or not.', 'textdomain'), '<a href="https://schema.org/SiteNavigationElement">', '</a>') ?></label>
                 </div>
             </fieldset>
         </div>
@@ -85,6 +102,7 @@ function sc_mm4ep_save_menu_settings($menu_id)
     }
 
     $settings['is_elementor'] = isset($_POST['sc_mm4ep_settings']['is_elementor']) ? intval($_POST['sc_mm4ep_settings']['is_elementor']) : 0;
+    $settings['schema_markup'] = isset($_POST['sc_mm4ep_settings']['schema_markup']) ? intval($_POST['sc_mm4ep_settings']['schema_markup']) : 0;
 
     update_term_meta($menu_id, 'sc_mm4ep_settings', $settings);
 }
@@ -192,14 +210,6 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 	);
 
 	$doc->add_control(
-		'disable_link',
-		[
-			'label' => esc_html__('Disable Link', 'textdomain'),
-			'type' => Controls_Manager::SWITCHER
-		]
-	);
-
-	$doc->add_control(
 		'hide_on_mobile',
 		[
 			'label' => esc_html__('Hide on Mobile', 'textdomain'),
@@ -208,17 +218,17 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 	);
 
 	$doc->add_control(
-		'hide_on_desktop',
+		'hide_on_tablet',
 		[
-			'label' => esc_html__('Hide on Desktop', 'textdomain'),
+			'label' => esc_html__('Hide on Tablet', 'textdomain'),
 			'type' => Controls_Manager::SWITCHER
 		]
 	);
 
 	$doc->add_control(
-		'hide_sub_on_mobile',
+		'hide_on_desktop',
 		[
-			'label' => esc_html__('Hide Sub on Mobile', 'textdomain'),
+			'label' => esc_html__('Hide on Desktop', 'textdomain'),
 			'type' => Controls_Manager::SWITCHER
 		]
 	);
@@ -264,13 +274,27 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 		]
 	);
 
+	// $doc->add_group_control(
+	// 	Group_Control_Typography::get_type(),
+	// 	[
+	// 		'name' => 'badge_typography',
+	// 		'scheme' => Typography::TYPOGRAPHY_1,
+	// 		'selector' => '.elementor-nav-menu .current-menu-item > .menu-item-badge',
+    //         'condition' => [
+    //             'show_badge' => 'yes',
+    //             'badge_label!' => ''
+    //         ]
+	// 	]
+	// );
+
 	$doc->add_control(
 		'badge_label_color',
 		[
 			'label' => esc_html__('Badge Label Color', 'textdomain'),
 			'type' => Controls_Manager::COLOR,
+            'default' => '#FFFFFF',
     		'selectors' => [
-    			'.cmm4e-current-edit-item > .cmm4e-nav-link .menu-item-badge' => 'color: {{VALUE}} !important;',
+    			'.elementor-nav-menu .current-menu-item > .menu-item-badge' => 'color: {{VALUE}} !important;',
     		],
             'condition' => [
                 'show_badge' => 'yes',
@@ -280,13 +304,30 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 	);
 
 	$doc->add_control(
-		'badge_background_color',
+		'badge_bg_color',
 		[
 			'label' => esc_html__('Badge Background Color', 'textdomain'),
 			'type' => Controls_Manager::COLOR,
+            'default' => '#D30C5C',
     		'selectors' => [
-    			'.cmm4e-current-edit-item > .cmm4e-nav-link .menu-item-badge' => 'background-color: {{VALUE}} !important;',
+    			'.elementor-nav-menu .current-menu-item > .menu-item-badge' => 'background-color: {{VALUE}} !important;',
     		],
+            'condition' => [
+                'show_badge' => 'yes',
+                'badge_label!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'badge_padding',
+		[
+			'label' => esc_html__( 'Badge Padding', 'textdomain' ),
+			'type' => Controls_Manager::DIMENSIONS,
+			'size_units' => ['px'],
+			'selectors' => [
+				'.elementor-nav-menu .current-menu-item > .menu-item-badge' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+			],
             'condition' => [
                 'show_badge' => 'yes',
                 'badge_label!' => ''
@@ -297,11 +338,11 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 	$doc->add_control(
 		'badge_border_radius',
 		[
-			'label' => esc_html__( 'Badge Border Radius', 'elementor' ),
+			'label' => esc_html__('Badge Border Radius', 'textdomain'),
 			'type' => Controls_Manager::DIMENSIONS,
 			'size_units' => ['px'],
 			'selectors' => [
-				'.cmm4e-current-edit-item > .cmm4e-nav-link .menu-item-badge' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+				'.elementor-nav-menu .current-menu-item > .menu-item-badge' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
 			],
             'condition' => [
                 'show_badge' => 'yes',
@@ -341,7 +382,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 				'size' => 100,
 			],
 			'selectors' => [
-				'#cmm4e-menu-content' => 'width: {{SIZE}}{{UNIT}};',
+				'#content-scope' => 'width: {{SIZE}}{{UNIT}};',
 			],
 		]
 	);
