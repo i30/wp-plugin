@@ -1,28 +1,12 @@
 export default function MenuItemEditor(item) {
     let self = this, $ = jQuery;
 
-
     self.popUp = $($("#mm4ep-item-editor-popup").html());
     self.menuId = $("input#menu").val();
     self.itemId = $("input.menu-item-data-db-id", item).val();
     self.itemTitle = $(".menu-item-title", item).text();
-    self.settings = {};
 
-    if (!_.isEmpty(scMmm4epItems[self.itemId])) {
-        self.settings = scMmm4epItems[self.itemId];
-    }
-
-    if (self.settings.icon) {
-        $(".item-title", item).prepend('<span class="mm4ep-item-icon"><i class="' + self.settings.icon + '"></i></span>')
-    }
-
-    self.setIcon = function(e) {
-        const icon = item.find(".mm4ep-item-icon");
-
-        icon.length ? icon.find("i").attr("class", e) : item.find(".item-title").prepend('<span class="mm4ep-item-icon"><i class="' + e + '"></i></span>')
-    }
-
-    self.openPopup = function() {
+    $(".mm4ep-item-edit-btn", item).on("click", e => {
         if (item.hasClass("menu-item-depth-0")) {
             self.isChild = false
         } else {
@@ -46,7 +30,5 @@ export default function MenuItemEditor(item) {
         $("#mm4ep-menu-id-" + self.itemId).show();
 
         window.currentMenuItem = self;
-    }
-
-    $(".mm4ep-item-edit-btn", item).on("click", e => self.openPopup());
+    });
 }

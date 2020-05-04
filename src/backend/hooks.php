@@ -9,6 +9,19 @@ use Elementor\Group_Control_Typography;
 use Elementor\Core\Schemes\Typography;
 
 /**
+ * Ajax render item icon
+ */
+function sc_mm4ep_ajax_render_menu_item_icon()
+{
+    if (!current_user_can('edit_posts')) {
+        wp_die(-1);
+    }
+
+    wp_send_json(sc_mm4ep_render_menu_item_icon($_POST['icon']));
+}
+add_action('wp_ajax_mm4ep_render_menu_item_icon', 'sc_mm4ep_ajax_render_menu_item_icon');
+
+/**
  * Enqueue editor scripts
  */
 function sc_mm4ep_enqueue_editor_scripts()
@@ -76,16 +89,11 @@ function sc_mm4ep_print_edit_scripts()
     </script>
     <script type="text/javascript">
         const scMmm4epConfig = <?php echo json_encode([
-                'isRTL' => is_rtl(),
-                'editUrl' => admin_url('?cmm4e-edit-menu-item=true'),
-                'menuPost' => admin_url('post.php?post_type=elementor_menu_item'),
-                'menuUrl' => admin_url('nav-menus.php'),
-                'userRoles' => wp_get_current_user()->roles
+                'editUrl' => admin_url('?cmm4e-edit-menu-item=true')
             ]) ?>,
             scMmm4epI18n = {
               "edit": "<?php esc_html_e('Edit', 'textdomain') ?>"
-            },
-            scMmm4epItems = <?php echo json_encode(sc_mm4ep_get_items_settings($nav_menu_selected_id)); ?>
+            }
     </script>
     <script defer src="<?php echo ELEMENTOR_PRO_MEGAMENU_URI . 'assets/js/menu-editor.min.js' ?>"></script>
     <?php
@@ -159,7 +167,7 @@ add_action('init', 'sc_mm4ep_save_menu_item_indentity', 11, 0);
 function sc_mm4ep_on_deleting_menu_item()
 {
 	if (!current_user_can('edit_theme_options')) {
-		exit(-1);
+		wp_die(-1);
 	}
 
     $menu_item_id = intval($_POST['menu-item-id']);
@@ -167,9 +175,9 @@ function sc_mm4ep_on_deleting_menu_item()
     if ($elementor_item_id = get_post_meta($menu_item_id, 'mm4ep_elementor_menu_item_id', true)) {
         $deleted = wp_delete_post($elementor_item_id, true);
         if (!$deleted) {
-            exit(json_encode(['success' => false]));
+            wp_send_json(['success' => false]);
         } else {
-            exit(json_encode(['success' => true]));
+            wp_send_json(['success' => true]);
         }
     }
 }
@@ -238,7 +246,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 		[
 			'label' => esc_html__('Icon', 'textdomain'),
 			'label_block' => true,
-			'type' => Controls_Manager::ICON
+			'type' => Controls_Manager::ICONS
 		]
 	);
 
@@ -273,19 +281,6 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
             ]
 		]
 	);
-
-	// $doc->add_group_control(
-	// 	Group_Control_Typography::get_type(),
-	// 	[
-	// 		'name' => 'badge_typography',
-	// 		'scheme' => Typography::TYPOGRAPHY_1,
-	// 		'selector' => '.elementor-nav-menu .current-menu-item > .menu-item-badge',
-    //         'condition' => [
-    //             'show_badge' => 'yes',
-    //             'badge_label!' => ''
-    //         ]
-	// 	]
-	// );
 
 	$doc->add_control(
 		'badge_label_color',
@@ -397,6 +392,11 @@ add_action('elementor/element/wp-post/document_settings/after_section_end', 'sc_
 function sc_mm4ep_extract_navmenu_data($post_id, $data)
 {
     $ss = get_option('stylesheet');
+    $post = get_post($post_id);
+
+    if ('elementor_menu_item' === $post->post_type) {
+        return;
+    }
 
     foreach ($data as $el) {
         if (!empty($el['elements'])) {

@@ -1,8 +1,9 @@
 <?php
 /**
  * Plugin Name: Mega Menu for Elementor Pro
- * Description: An Elementor Pro addon that helps you add mega menus, menu icons and menu badges.
+ * Description: An Elementor Pro addon that helps you add mega menus, menu icons, menu badges and user restriction to navigation menus.
  * Author: SarahCoding
+ * Author URI: https://sarahcoding.com
  * Version: 1.0.0
  * Text Domain: textdomain
  * Requires PHP: 5.6
@@ -21,10 +22,6 @@ function sc_elementor_mega_menu_pre_activation()
 
     if (version_compare($GLOBALS['wp_version'], '5.2', '<')) {
         throw new Exception(__('This plugin requires WordPress version 5.2 at least!', 'textdomain'));
-    }
-
-    if (!defined('WP_CONTENT_DIR') || !is_writable(WP_CONTENT_DIR)) {
-        throw new Exception(__('WordPress content directory is inaccessible.', 'textdomain'));
     }
 }
 

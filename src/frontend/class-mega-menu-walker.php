@@ -17,13 +17,6 @@ final class MegaMenuWalker extends Walker_Nav_Menu
     private $menu_settings;
 
     /**
-     * Current parsed item's settings
-     *
-     * @param object \WP_Post
-     */
-    private $item_settings;
-
-    /**
      * Constructor
      */
     public function __construct(array $menu_settings)
@@ -67,9 +60,9 @@ final class MegaMenuWalker extends Walker_Nav_Menu
 
         $atts = [];
         $content = false;
-        $this->item_settings = $settings = $this->getItemSettings($item->ID);
+        $settings = $this->getItemSettings($item->ID);
 
-        if (!empty($settings['viewers']) && !$this->isViewable($settings['viewers'])) {
+        if (!empty($settings['viewers']) && !$this->isItemViewable($settings['viewers'])) {
             return;
         }
 
@@ -81,11 +74,6 @@ final class MegaMenuWalker extends Walker_Nav_Menu
             return;
         }
 
-        if ('yes' === $settings['is_mega']) {
-            $content = $this->getItemContent($item->ID);
-        }
-
-        $indent  = $depth ? str_repeat("\t", $depth) : '';
         $classes = (array)$item->classes;
 
         if ('yes' === $settings['hide_on_mobile']) {
@@ -104,19 +92,25 @@ final class MegaMenuWalker extends Walker_Nav_Menu
             $classes[] = 'menu-item-has-children';
         }
 
-        if ($content && ('yes' === $settings['is_mega'])) {
+        $classes[] = 'menu-item-' . $item->ID;
+
+        if ('yes' === $settings['is_mega']) {
+            $content = $this->getItemContent($item->ID);
+        }
+
+        if ($content) {
             $atts['aria-haspopup'] = 'true';
         }
 
         $html_classes = join(' ', array_filter($classes));
-        $html_classes = ($content && ('yes' === $settings['is_mega'])) ? $html_classes . ' menu-item-has-children elementor-mega-menu-item elementor-nav-menu--dropdown' : $html_classes;
+        $html_classes = $content ? $html_classes . ' menu-item-has-children elementor-mega-menu-item' : $html_classes;
 
-        $output .= $indent . '<li class="' . esc_attr($html_classes) . '">';
+        $output .= '<li class="' . esc_attr($html_classes) . '">';
 
-        $atts['title']  = !empty($item->attr_title) ? $item->attr_title : '';
-        $atts['target'] = !empty($item->target)     ? $item->target     : '';
-        $atts['rel']    = !empty($item->xfn)        ? $item->xfn        : '';
-        $atts['href']   = !empty($item->url)        ? $item->url        : '';
+        $atts['rel'] = !empty($item->xfn) ? $item->xfn : '';
+        $atts['href'] = !empty($item->url) ? $item->url : '';
+        $atts['title'] = !empty($item->attr_title) ? $item->attr_title : '';
+        $atts['target'] = !empty($item->target) ? $item->target : '';
 
         $attributes = '';
 
@@ -146,57 +140,47 @@ final class MegaMenuWalker extends Walker_Nav_Menu
             }
         }
 
-        $se_markup = $this->menu_settings['schema_markup'] && !isset($GLOBALS['navmenu_schema_markup_added']);
-        $item_output = isset($args->before) ? $args->before : '';
+        $schema_markup = $this->menu_settings['schema_markup'] && !isset($GLOBALS['navmenu_schema_markup_added']);
 
-        $item_output .= '<a'. $attributes;
-        $item_output .= $se_markup ? ' itemprop="url">' : '>';
-        $item_output .= $this->getIcon($settings);
+        // if (!empty($args->before) && is_string($args->before)) {
+        //     $output .= $args->before;
+        // }
+
+        $output .= '<a'. $attributes;
+        $output .= $schema_markup ? ' itemprop="url">' : '>';
+
+        if (!empty($settings['icon'])) {
+            $output .= sc_mm4ep_render_menu_item_icon($settings['icon']);
+        }
 
         if (!$settings['hide_title'] || !empty($settings['icon'])) {
-            $item_output .= '<span class="menu-item-label';
-            $item_output .= $settings['hide_title'] ? ' elementor-screen-only"' : '"';
-            $item_output .= $se_markup ? ' itemprop="name">' : '>';
-            $item_output .= $item->title;
-            $item_output .='</span>';
-            if ('yes' === $settings['show_badge']) {
-                $badge_style = 'line-height:1';
-                $settings['badge_label'] = !empty($settings['badge_label']) ? $settings['badge_label'] : esc_html__('New', 'textdomain');
-                $item_output .= '<span role="presentation" class="menu-item-badge"';
-                if (!empty($settings['badge_label_color'])) {
-                    $badge_style .= ';color:' . $settings['badge_label_color'];
-                } else {
-                    $badge_style .= ';color:#fff';
-                }
-                if (!empty($settings['badge_bg_color'])) {
-                    $badge_style .= ';background-color:' . $settings['badge_bg_color'];
-                } else {
-                    $badge_style .= ';background-color:#D30C5C';
-                }
-                if (!empty($settings['badge_padding']['top'])) {
-                    $badge_style .= sprintf(';border-radius:%spx %spx %spx %spx', $settings['badge_padding']['top'], $settings['badge_padding']['right'], $settings['badge_padding']['bottom'], $settings['badge_padding']['left']);
-                }
-                if (!empty($settings['badge_border_radius']['top'])) {
-                    $badge_style .= sprintf(';border-radius:%spx %spx %spx %spx', $settings['badge_border_radius']['top'], $settings['badge_border_radius']['right'], $settings['badge_border_radius']['bottom'], $settings['badge_border_radius']['left']);
-                }
-                $item_output .= ' style="' . esc_attr($badge_style) . '">';
-                $item_output .= esc_html($settings['badge_label']);
-                $item_output .='</span>';
-            }
+            $output .= '<span class="menu-item-label';
+            $output .= $settings['hide_title'] ? ' elementor-screen-only"' : '"';
+            $output .= $schema_markup ? ' itemprop="name">' : '>';
+            $output .= $item->title;
+            $output .= '</span>';
         }
 
-        $item_output .= '</a>';
+        if ($content) {
+            $output .= '<span role="presentation" class="sub-arrow"><i class="fa"></i></span>';
+        }
 
-        $item_output .= isset($args->after) ? $args->after : '';
+        $output .= '</a>';
 
-        if ($content && ('yes' === $settings['is_mega']) && !$this->is_preview) {
+        if ('yes' === $settings['show_badge']) {
+            $output .= $this->getItemBadge($settings);
+        }
+
+        if ($content && !$this->is_preview) {
             $mega_style = !$this->is_mobile ? 'width:' . $settings['mega_panel_width']['size'] . $settings['mega_panel_width']['unit'] . ';' : '';
-            $item_output .= '<div class="elementor-mega-menu-content" style="' . esc_attr($mega_style) . '">';
-            $item_output .= sprintf('<div class="elementor-mega-menu-content-inner">%s</div>', $content);
-            $item_output .= '</div>';
+            $output .= '<div class="elementor-mega-menu-content" style="' . esc_attr($mega_style) . '">';
+            $output .= sprintf('<div class="elementor-mega-menu-content-inner">%s</div>', $content);
+            $output .= '</div>';
         }
 
-        $output .= $item_output;
+        // if (!empty($args->after) && is_string($args->after)) {
+        //     $output .= $args->after;
+        // }
     }
 
     /**
@@ -263,21 +247,38 @@ final class MegaMenuWalker extends Walker_Nav_Menu
     }
 
     /**
-     * Parse icon
-     *
-     * @param    array    $settings    Menu item's settings.
-     *
-     * @return    string    $icon    Parsed icon string.
+     * @return string
      */
-    private function getIcon(array $settings)
+    private function getItemBadge(array $settings)
     {
-        $icon = empty($settings['icon']) ? '' : trim($settings['icon']);
+        $style = 'line-height:1';
+        $output = '<span role="presentation" class="menu-item-badge"';
 
-        if ($icon) {
-            $icon = '<span class="menu-item-icon"><i class="'.esc_attr($icon).'"></i></span>';
+        $settings['badge_label'] = !empty($settings['badge_label']) ? $settings['badge_label'] : esc_html__('New', 'textdomain');
+
+        if (!empty($settings['badge_label_color'])) {
+            $style .= ';color:' . $settings['badge_label_color'];
+        } else {
+            $style .= ';color:#fff';
         }
 
-        return $icon;
+        if (!empty($settings['badge_bg_color'])) {
+            $style .= ';background-color:' . $settings['badge_bg_color'];
+        } else {
+            $style .= ';background-color:#D30C5C';
+        }
+
+        if (!empty($settings['badge_padding']['top'])) {
+            $style .= sprintf(';border-radius:%spx %spx %spx %spx', $settings['badge_padding']['top'], $settings['badge_padding']['right'], $settings['badge_padding']['bottom'], $settings['badge_padding']['left']);
+        }
+
+        if (!empty($settings['badge_border_radius']['top'])) {
+            $style .= sprintf(';border-radius:%spx %spx %spx %spx', $settings['badge_border_radius']['top'], $settings['badge_border_radius']['right'], $settings['badge_border_radius']['bottom'], $settings['badge_border_radius']['left']);
+        }
+
+        $output .= ' style="' . esc_attr($style) . '">' . esc_html($settings['badge_label']) . '</span>';
+
+        return $output;
     }
 
     /**
@@ -287,7 +288,7 @@ final class MegaMenuWalker extends Walker_Nav_Menu
      *
      * @return    bool
      */
-    private function isViewable($viewers)
+    private function isItemViewable($viewers)
     {
         $valid_roles = [];
         $roles = wp_roles()->roles;

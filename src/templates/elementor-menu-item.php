@@ -21,7 +21,8 @@ $args = [
 
 $data_settings = json_encode([
     'layout' => $menu_settings['layout'],
-    'toggle' => $menu_settings['toggle']
+    'toggle' => $menu_settings['toggle'],
+    'indicator' => $menu_settings['indicator']
 ]);
 
 if ('vertical' === $menu_settings['layout']) {

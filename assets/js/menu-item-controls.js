@@ -13,15 +13,15 @@
 
         function toggleTitle(e) {
             const y = $(e.currentTarget).is(":checked"),
-                a = $(".elementor-item-anchor", activeItem),
-                l = $(".menu-item-label", activeItem);
+                a = $("> .menu-item-link", activeItem),
+                l = $(".menu-item-label", a);
 
-            y ? (!0, l.length && l.hide()) : (!1, l.length ? l.show() : a.append('<span class="cmm4e-item-label">' + item.itemTitle + "</span>"))
+            y ? (!0, l.length && l.hide()) : (!1, l.length ? l.show() : a.append('<span class="menu-item-label">' + item.itemTitle + "</span>"))
         }
 
         function toggleBadge(e) {
             const y = $(e.currentTarget).is(":checked"),
-                a = $("> .elementor-item-anchor", activeItem),
+                a = $("> .menu-item-link", activeItem),
                 b = $("> .menu-item-badge", activeItem);
 
             if (y) {
@@ -36,29 +36,42 @@
             }
         }
 
-        function i(e) {
-            d.is(":hidden");
-            var n = d.find("> .cmm4e-item-toggle"),
-                t = k(e.target).is(":checked"),
-                i = d.find("> .menu-item-arrow");
-            if (s.toggleMega(t), t) {
-                if (l = !0, c.sections.megaPanel.show(), c.sections.flyoutPanel.hide(), d.addClass("cmm4e-mega menu-item-has-children cmm4e-item-has-content"), d.find("> .cmm4e-sub-container").hide(), n.length || d.append('<span class="cmm4e-item-toggle cs-font clever-icon-plus"></span>'), i.length) i.show();
-                else {
-                    var o = "vertical" === a.desktop.orientation ? a.arrows.right : a.arrows.down;
-                    d.append('<span role="presentation" class="menu-item-arrow ' + o + '"></span>')
+        function toggleMega(mega) {
+            const indicator = $("> .menu-item-link .sub-arrow", activeItem);
+
+            if (mega) {
+                $el.sections.megaPanel.show();
+                content.show();
+                if (!indicator.length) {
+                    $("> .menu-item-link", activeItem).append('<span role="presentation" class="sub-arrow"><i class="fa"></i></span>');
+                } else {
+                    indicator.show();
                 }
-                r.find("#cmm4e-menu-content").show()
             } else {
-                var m = d.find("> .cmm4e-sub-container");
-                l = !1, c.sections.megaPanel.hide(), c.sections.flyoutPanel.show(), d.removeClass("cmm4e-mega cmm4e-item-has-content"), m.length ? m.show() : (d.removeClass("menu-item-has-children"), d.find("> .menu-item-arrow").hide()), r.find("#cmm4e-menu-content").hide()
+                $el.sections.megaPanel.hide();
+                content.hide();
+                if (indicator.length && !item.isFlyout) {
+                    indicator.hide();
+                }
             }
         }
 
-        function h(e) {
-            var n = k(e.target).val();
-            s.setIcon(n);
-            var t = d.find("> .cmm4e-nav-link > .menu-item-icon");
-            t.length ? t.find("i").attr("class", n) : k('<span class="menu-item-icon"><i class="' + n + '"></i></span>').insertBefore(d.find("> .cmm4e-nav-link > .cmm4e-item-label"))
+        function setIcon(icon) {
+            const itemLink = $("> .menu-item-link", activeItem),
+                itemIcon = $(".menu-item-icon", itemLink),
+                data = {
+                    'action': 'mm4ep_render_menu_item_icon',
+                    'icon': icon
+                };
+
+            $.post(ajaxurl, data, r => {
+                if (r != -1) {
+                    if (itemIcon.length) {
+                        itemIcon.remove();
+                    }
+                    itemLink.prepend(r);
+                }
+            });
         }
 
         function u(e) {
@@ -108,6 +121,10 @@
                 content.hide();
             }
 
+            if (item.isChild) {
+                activeItem.parents(".sub-menu").show();
+            }
+
             $(".elementor-control-post_status", c).hide();
             $("#elementor-panel-page-settings .elementor-tab-control-style").hide();
             $("#elementor-panel-header-title").html(scMmm4epI18n.menuItemSettings);
@@ -121,14 +138,13 @@
 
             isMega = $("input", $el.controls.isMega).is(":checked");
 
-            isMega ? $el.sections.megaPanel.show() : $el.sections.megaPanel.hide();
+            toggleMega(isMega);
         }
 
         function bindEvents() {
+            $("input", $el.controls.isMega).on("change", e => toggleMega($(e.currentTarget).is(":checked")));
             $("input", $el.controls.showBadge).on("change", toggleBadge);
             $("input", $el.controls.hideTitle).on("change", toggleTitle);
-            // $("input", $el.controls.enableMega).on("change", toggleMega);
-            // $("select", $el.controls.iconSelect).on("change", selectIcon);
             // $("input", $el.controls.hideOnMobile).on("change", toggleMobile);
             // $("input", $el.controls.hideOnDesktop).on("change", toggleDesktop);
             // $("input", $el.controls.hideSubOnMobile).on("change", toggleSub);
@@ -143,7 +159,7 @@
             menu = $("#menu-scope", pv);
             config = menu.data("settings");
             activeItem.addClass("current-menu-item");
-            $(".elementor-item-anchor", activeItem).addClass("elementor-item-active");
+            $("> .menu-item-link", activeItem).addClass("elementor-item-active");
             // "mobile" !== o && "tablet" !== o || (d.hasClass("cmm4e-hide-on-mobile") && d.hide(),
             // d.hasClass("cmm4e-hide-sub-on-mobile") && d.find(".cmm4e-sub-panel").hide()),
             // "desktop" === o && d.hasClass("cmm4e-hide-on-desktop") && d.hide(), r.hasClass("cmm4e-mega-disabled") && r.find("#cmm4e-menu-content").hide(),
@@ -206,7 +222,14 @@
 
         elementor.settings.page.model.on("change", e => {
             const v = e.changed;
-            _.isUndefined(v.badge_label) || activeItem.find(" > .elementor-item-anchor .menu-item-badge").text(v.badge_label)
+
+            if (v.badge_label) {
+                $("> .menu-item-link .menu-item-badge", activeItem).text(v.badge_label);
+            }
+
+            if (v.icon) {
+                setIcon(v.icon);
+            }
         });
     }
 

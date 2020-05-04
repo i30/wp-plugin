@@ -61,8 +61,8 @@ function sc_mm4ep_walker_nav_menu_args(array $args)
 add_filter('wp_nav_menu_args', 'sc_mm4ep_walker_nav_menu_args', PHP_INT_MAX);
 
 /**
- * Elementor Pro renders a menu twice,
- * ensure we add schema markups once.
+ * Since Elementor Pro renders a menu twice,
+ * ensure we add schema markups once per page.
  */
 function sc_mm4ep_ensure_one_site_nav_element($menu, $args)
 {
@@ -73,30 +73,3 @@ function sc_mm4ep_ensure_one_site_nav_element($menu, $args)
     return $menu;
 }
 add_filter('wp_nav_menu', 'sc_mm4ep_ensure_one_site_nav_element', PHP_INT_MAX, 2);
-
-// add_action('wp_head', function()
-// {
-//     $meta = json_decode(get_metadata('post', 8, '_elementor_data', true));
-//
-//     function get_nav_menu_settings(array $elements)
-//     {
-//         static $nav_menus = [];
-//
-//         foreach ($elements as $el) {
-//             if (!empty($el->elements)) {
-//                 get_nav_menu_settings($el->elements);
-//             }
-//             if ($el->elType === 'widget' && $el->widgetType === 'nav-menu') {
-//                 if (!empty($el->settings->menu)) {
-//                     $nav_menus[$el->settings->menu] = $el->settings;
-//                 }
-//             }
-//         }
-//
-//         return $nav_menus;
-//     }
-//
-//     echo "<pre>";
-//     var_dump(get_nav_menu_settings(get_option('abcxyz_8')));
-//     exit;
-// }, 10, 0);

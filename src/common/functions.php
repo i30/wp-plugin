@@ -1,7 +1,30 @@
 <?php
 /**
- * Mixin functions
+ * Common functions
  */
+use Elementor\Icons_Manager;
+use Elementor\Core\Files\Assets\Svg\Svg_Handler;
+
+/**
+ * @return string
+ */
+function sc_mm4ep_render_menu_item_icon(array $icon)
+{
+    if (!empty($icon['value'])) {
+        if ('svg' === $icon['library']) {
+            return Svg_Handler::get_inline_svg($icon['value']);
+        } else {
+            $types = Icons_Manager::get_icon_manager_tabs();
+            if (isset($types[$icon['library']]['render_callback']) && is_callable($types[$icon['library']]['render_callback'])) {
+                $atts = ['class' => 'menu-item-icon ' . $icon['value']];
+                return call_user_func_array($types[$icon['library']]['render_callback'], [$icon, $atts, 'span']);
+            }
+            return '<span class="menu-item-icon ' . $icon['value'] . '"></span>';
+        }
+    }
+
+    return '';
+}
 
 /**
  * @return array
@@ -21,7 +44,7 @@ function sc_mm4ep_get_items_settings($menu_id)
         foreach ($items as $item) {
             $elementor_item_id = get_post_meta($item->ID, 'mm4ep_elementor_menu_item_id', true);
             $menu_items[$item->ID] = array_merge([
-                'icon' => '',
+                'icon' => [],
                 'is_mega' => 0,
                 'hide_title' => 0,
                 'viewers' => ['anyone'],
