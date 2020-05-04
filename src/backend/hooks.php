@@ -210,17 +210,9 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 	]);
 
 	$doc->add_control(
-		'is_mega',
-		[
-			'label' => esc_html__('Mega Menu', 'textdomain'),
-			'type' => Controls_Manager::SWITCHER
-		]
-	);
-
-	$doc->add_control(
 		'hide_on_mobile',
 		[
-			'label' => esc_html__('Hide on Mobile', 'textdomain'),
+			'label' => esc_html__('Hide On Mobile', 'textdomain'),
 			'type' => Controls_Manager::SWITCHER
 		]
 	);
@@ -228,7 +220,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 	$doc->add_control(
 		'hide_on_tablet',
 		[
-			'label' => esc_html__('Hide on Tablet', 'textdomain'),
+			'label' => esc_html__('Hide On Tablet', 'textdomain'),
 			'type' => Controls_Manager::SWITCHER
 		]
 	);
@@ -236,8 +228,46 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 	$doc->add_control(
 		'hide_on_desktop',
 		[
-			'label' => esc_html__('Hide on Desktop', 'textdomain'),
+			'label' => esc_html__('Hide On Desktop', 'textdomain'),
 			'type' => Controls_Manager::SWITCHER
+		]
+	);
+
+
+	$doc->add_control(
+		'is_mega',
+		[
+			'label' => esc_html__('Enable Mega Menu', 'textdomain'),
+			'type' => Controls_Manager::SWITCHER
+		]
+	);
+
+	$doc->add_control(
+		'mega_panel_width',
+		[
+			'label' => esc_html__('Mega Panel Width', 'textdomain'),
+			'type' => Controls_Manager::SLIDER,
+			'size_units' => ['%', 'vw', 'px'],
+			'range' => [
+				'%' => [
+					'min' => 30,
+					'max' => 100
+				],
+				'px' => [
+					'min' => 400,
+					'max' => 1920
+				]
+			],
+			'default' => [
+				'unit' => '%',
+				'size' => 100,
+			],
+			'selectors' => [
+				'#content-scope' => 'width: {{SIZE}}{{UNIT}};',
+			],
+            'condition' => [
+                'is_mega!' => ''
+            ]
 		]
 	);
 
@@ -347,42 +377,6 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 	);
 
     $doc->end_injection();
-
-	$doc->start_controls_section(
-		'mega_panel_settings',
-		[
-			'label' => esc_html__('Mega Panel Settings', 'textdomain'),
-			'tab' => Controls_Manager::TAB_SETTINGS,
-		]
-	);
-
-	$doc->add_control(
-		'mega_panel_width',
-		[
-			'label' => esc_html__( 'Width', 'textdomain' ),
-			'type' => Controls_Manager::SLIDER,
-			'size_units' => ['%', 'vw', 'px'],
-			'range' => [
-				'%' => [
-					'min' => 30,
-					'max' => 100
-				],
-				'px' => [
-					'min' => 400,
-					'max' => 1920
-				]
-			],
-			'default' => [
-				'unit' => '%',
-				'size' => 100,
-			],
-			'selectors' => [
-				'#content-scope' => 'width: {{SIZE}}{{UNIT}};',
-			],
-		]
-	);
-
-    $doc->end_controls_section();
 }
 add_action('elementor/element/wp-post/document_settings/after_section_end', 'sc_mm4ep_register_elementor_menu_item_controls');
 

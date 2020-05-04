@@ -88,9 +88,9 @@ final class MegaMenuWalker extends Walker_Nav_Menu
             $classes[] = 'elementor-hidden-desktop';
         }
 
-        if ($this->has_children) {
-            $classes[] = 'menu-item-has-children';
-        }
+        // if ($this->has_children) {
+        //     $classes[] = 'menu-item-has-children';
+        // }
 
         $classes[] = 'menu-item-' . $item->ID;
 
@@ -103,7 +103,7 @@ final class MegaMenuWalker extends Walker_Nav_Menu
         }
 
         $html_classes = join(' ', array_filter($classes));
-        $html_classes = $content ? $html_classes . ' menu-item-has-children elementor-mega-menu-item' : $html_classes;
+        $html_classes = $content ? $html_classes . ' elementor-mega-menu-item' : $html_classes;
 
         $output .= '<li class="' . esc_attr($html_classes) . '">';
 

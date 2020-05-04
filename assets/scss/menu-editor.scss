@@ -1,7 +1,7 @@
 .menu-item {
     .item-title {
         .is-submenu {
-            display: none;
+            display: none !important;
         }
     }
 }
