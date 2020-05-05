@@ -54,6 +54,14 @@ if ('none' !== $menu_settings['dropdown']) {
     <meta charset="<?php bloginfo('charset'); ?>">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <?php wp_head(); ?>
+    <style media="screen">
+        body {
+            background-color: #495157
+        }
+        .elementor-menu-toggle {
+            color: #FFFFFF;
+        }
+    </style>
 </head>
 <body <?php body_class('elementor-' . $menu_settings['post_id']); ?>>
 <div id="preview-scope">

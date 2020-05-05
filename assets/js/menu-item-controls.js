@@ -2,27 +2,27 @@
     "use strict";
 
     function ElementorMenuItemEditor(item) {
-        let $el, isMega, device = "desktop", content;
+        let itemEl, isMega, device = "desktop", megaContent;
 
         function toggleTitle(y) {
-            const a = $("> .menu-item-link", $el),
+            const a = $("> .menu-item-link", itemEl),
                 l = $(".menu-item-label", a);
 
             y ? (!0, l.length && l.hide()) : (!1, l.length ? l.show() : a.append('<span class="menu-item-label">' + item.itemTitle + "</span>"))
         }
 
         function toggleMega(mega) {
-            const indicator = $("> .menu-item-link .sub-arrow", $el);
+            const indicator = $("> .menu-item-link .sub-arrow", itemEl);
 
             if (mega) {
-                content.show();
+                megaContent.show();
                 if (!indicator.length) {
-                    $("> .menu-item-link", $el).append('<span role="presentation" class="sub-arrow"><i class="fa"></i></span>');
+                    $("> .menu-item-link", itemEl).append('<span role="presentation" class="sub-arrow"><i class="fa"></i></span>');
                 } else {
                     indicator.show();
                 }
             } else {
-                content.hide();
+                megaContent.hide();
                 if (indicator.length && !item.isFlyout) {
                     indicator.hide();
                 }
@@ -34,19 +34,19 @@
 
             if (hide) {
                 if (isMega) {
-                    content.hide();
+                    megaContent.hide();
                 }
-                $el.hide();
+                itemEl.hide();
             } else {
                 if (isMega) {
-                    content.show();
+                    megaContent.show();
                 }
-                $el.show();
+                itemEl.show();
             }
         }
 
         function setIcon(icon) {
-            const itemLink = $("> .menu-item-link", $el),
+            const itemLink = $("> .menu-item-link", itemEl),
                 itemIcon = $(".menu-item-icon", itemLink),
                 data = {
                     'action': 'mm4ep_render_menu_item_icon',
@@ -64,8 +64,8 @@
         }
 
         function toggleBadge(y) {
-            const a = $("> .menu-item-link", $el),
-                b = $("> .menu-item-badge", $el);
+            const a = $("> .menu-item-link", itemEl),
+                b = $("> .menu-item-badge", itemEl);
 
             if (y) {
                 if (b.length) {
@@ -112,7 +112,7 @@
             }
 
             if (undefined !== a.badge_label) {
-                $("> .menu-item-badge", $el).text(a.badge_label);
+                $("> .menu-item-badge", itemEl).text(a.badge_label);
             }
         }
 
@@ -141,7 +141,7 @@
             }
         }
 
-        function fetchUI() {
+        function renderControls() {
             const c = $("#elementor-panel-page-settings-controls"),
                 isMegaControl = $(".elementor-control-is_mega", c);
 
@@ -156,20 +156,20 @@
         }
 
         elementor.on("preview:loaded", () => {
-            $el = $(".menu-item-" + item.itemId, elementor.$previewContents);
-            content = $("#content-scope", elementor.$previewContents);
+            itemEl = $(".menu-item-" + item.itemId, elementor.$previewContents);
+            megaContent = $("#content-scope", elementor.$previewContents);
 
             if (item.isChild) {
-                $el.parents(".sub-menu").show();
+                itemEl.parents(".sub-menu").show();
             }
 
             if (item.isFlyout || item.isChild) {
-                content.hide();
+                megaContent.hide();
             }
 
-            $el.addClass("current-menu-item");
+            itemEl.addClass("current-menu-item");
 
-            $("> .menu-item-link", $el).addClass("elementor-item-active");
+            $("> .menu-item-link", itemEl).addClass("elementor-item-active");
         });
 
         elementor.on("document:loaded", () => {
@@ -182,9 +182,7 @@
 
             elementor.panel.currentView.on("set:page:page_settings", page => {
                 page.on("render:collection", collection => {
-                    if (collection._isRendered) {
-                        fetchUI();
-                    }
+                    collection._isRendered ? renderControls() : !1;
                 });
             });
 
