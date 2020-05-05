@@ -2,10 +2,11 @@ const path = require('path'),
     MiniCss = require('mini-css-extract-plugin');
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
   context: __dirname + '/assets',
   entry: {
-    'menu-editor': './js/menu-editor.js',
+    'frontend': './js/frontend.js',
+    // 'menu-editor': './js/menu-editor.js',
     'menu-item-editor': './js/menu-item-editor.js',
     'menu-item-controls': './js/menu-item-controls.js'
   },

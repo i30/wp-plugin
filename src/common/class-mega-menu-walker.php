@@ -1,4 +1,10 @@
 <?php namespace SC\MM4EP;
+/**
+ * Copyright (c) SarahCoding <contact.sarahcoding@gmail.com>
+ *
+ * This source code is licensed under the license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
 
 use WP_Post;
 use Walker_Nav_Menu;
@@ -88,13 +94,9 @@ final class MegaMenuWalker extends Walker_Nav_Menu
             $classes[] = 'elementor-hidden-desktop';
         }
 
-        // if ($this->has_children) {
-        //     $classes[] = 'menu-item-has-children';
-        // }
-
         $classes[] = 'menu-item-' . $item->ID;
 
-        if ('yes' === $settings['is_mega']) {
+        if ('yes' === $settings['is_mega'] && !$this->is_preview) {
             $content = $this->getItemContent($item->ID);
         }
 
@@ -161,21 +163,25 @@ final class MegaMenuWalker extends Walker_Nav_Menu
             $output .= '</span>';
         }
 
-        if ($content) {
-            $output .= '<span role="presentation" class="sub-arrow"><i class="fa"></i></span>';
-        }
-
-        $output .= '</a>';
-
         if ('yes' === $settings['show_badge']) {
             $output .= $this->getItemBadge($settings);
         }
 
-        if ($content && !$this->is_preview) {
+        // if ($content && $this->is_preview) {
+        //     $output .= '<span role="presentation" class="sub-arrow"><i class="fa"></i></span>';
+        // }
+
+        $output .= '</a>';
+
+        if ($content) {
+            $output .= '<ul class="sub-menu elementor-nav-menu--dropdown">';
+            $output .= '<li class="menu-item mega-menu-item">';
             $mega_style = !$this->is_mobile ? 'width:' . $settings['mega_panel_width']['size'] . $settings['mega_panel_width']['unit'] . ';' : '';
             $output .= '<div class="elementor-mega-menu-content" style="' . esc_attr($mega_style) . '">';
             $output .= sprintf('<div class="elementor-mega-menu-content-inner">%s</div>', $content);
             $output .= '</div>';
+            $output .= '</li>';
+            $output .= '</ul>';
         }
 
         // if (!empty($args->after) && is_string($args->after)) {
@@ -268,12 +274,24 @@ final class MegaMenuWalker extends Walker_Nav_Menu
             $style .= ';background-color:#D30C5C';
         }
 
+        if (!empty($settings['badge_text_size'])) {
+            $style .= ';font-size:' . $settings['badge_text_size']['size'] . $settings['badge_text_size']['unit'];
+        }
+
         if (!empty($settings['badge_padding']['top'])) {
-            $style .= sprintf(';border-radius:%spx %spx %spx %spx', $settings['badge_padding']['top'], $settings['badge_padding']['right'], $settings['badge_padding']['bottom'], $settings['badge_padding']['left']);
+            $style .= sprintf(';padding:%spx %spx %spx %spx', $settings['badge_padding']['top'], $settings['badge_padding']['right'], $settings['badge_padding']['bottom'], $settings['badge_padding']['left']);
         }
 
         if (!empty($settings['badge_border_radius']['top'])) {
             $style .= sprintf(';border-radius:%spx %spx %spx %spx', $settings['badge_border_radius']['top'], $settings['badge_border_radius']['right'], $settings['badge_border_radius']['bottom'], $settings['badge_border_radius']['left']);
+        }
+
+        if (!empty($settings['badge_offset_top'])) {
+            $style .= ';top:' . $settings['badge_offset_top']['size'] . $settings['badge_offset_top']['unit'];
+        }
+
+        if (!empty($settings['badge_offset_right'])) {
+            $style .= ';right:' . $settings['badge_offset_right']['size'] . $settings['badge_offset_right']['unit'];
         }
 
         $output .= ' style="' . esc_attr($style) . '">' . esc_html($settings['badge_label']) . '</span>';

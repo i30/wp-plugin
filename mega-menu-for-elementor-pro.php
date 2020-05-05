@@ -63,6 +63,7 @@ function sc_elementor_mega_menu_install()
 
     load_plugin_textdomain('textdomain', false, basename(__DIR__) . '/languages');
 
+    require __DIR__ . '/src/common/class-mega-menu-walker.php';
     require __DIR__ . '/src/common/functions.php';
     require __DIR__ . '/src/common/hooks.php';
 
@@ -72,7 +73,6 @@ function sc_elementor_mega_menu_install()
     } else {
         require __DIR__ . '/src/frontend/hooks.php';
         require __DIR__ . '/src/frontend/functions.php';
-        require __DIR__ . '/src/frontend/class-mega-menu-walker.php';
     }
 }
 add_action('plugins_loaded', 'sc_elementor_mega_menu_install', 10, 0);

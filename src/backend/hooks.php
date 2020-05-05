@@ -1,12 +1,308 @@
 <?php
 /**
- * Backend hooks
+ * Copyright (c) SarahCoding <contact.sarahcoding@gmail.com>
+ *
+ * This source code is licensed under the license found in the
+ * LICENSE file in the root directory of this source tree.
  */
 
 use Elementor\Scheme_Color;
 use Elementor\Controls_Manager;
 use Elementor\Group_Control_Typography;
 use Elementor\Core\Schemes\Typography;
+
+/**
+ * Register elemetor controls for menu item
+ */
+function sc_mm4ep_register_elementor_menu_item_controls($doc)
+{
+    $post = $doc->get_post();
+
+    if ('elementor_menu_item' !== $post->post_type) {
+        return;
+    }
+
+    $viewers = ['anyone' => esc_html__('Anyone', 'textdomain')];
+    $roles = wp_roles()->roles;
+
+    foreach ($roles as $role => $cap) {
+        $viewers[$role] = $cap['name'];
+    }
+
+    $doc->remove_control('post_title');
+
+    remove_all_actions('elementor/documents/register_controls');
+
+	$doc->start_injection([
+		'of' => 'post_status'
+	]);
+
+	$doc->add_control(
+		'hide_on_mobile',
+		[
+			'label' => esc_html__('Hide On Mobile', 'textdomain'),
+			'type' => Controls_Manager::SWITCHER
+		]
+	);
+
+	$doc->add_control(
+		'hide_on_tablet',
+		[
+			'label' => esc_html__('Hide On Tablet', 'textdomain'),
+			'type' => Controls_Manager::SWITCHER
+		]
+	);
+
+	$doc->add_control(
+		'hide_on_desktop',
+		[
+			'label' => esc_html__('Hide On Desktop', 'textdomain'),
+			'type' => Controls_Manager::SWITCHER
+		]
+	);
+
+
+	$doc->add_control(
+		'is_mega',
+		[
+			'label' => esc_html__('Enable Mega Menu', 'textdomain'),
+			'type' => Controls_Manager::SWITCHER
+		]
+	);
+
+	$doc->add_control(
+		'mega_panel_width',
+		[
+			'label' => esc_html__('Mega Panel Width', 'textdomain'),
+			'type' => Controls_Manager::SLIDER,
+			'size_units' => ['%', 'vw', 'px'],
+			'range' => [
+				'%' => [
+					'min' => 30,
+					'max' => 100
+				],
+				'px' => [
+					'min' => 400,
+					'max' => 1920
+				]
+			],
+			'default' => [
+				'unit' => '%',
+				'size' => 100,
+			],
+			'selectors' => [
+				'#content-scope' => 'width: {{SIZE}}{{UNIT}};',
+			],
+            'condition' => [
+                'is_mega!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'icon',
+		[
+			'label' => esc_html__('Icon', 'textdomain'),
+			'label_block' => true,
+			'type' => Controls_Manager::ICONS
+		]
+	);
+
+	$doc->add_control(
+		'show_badge',
+		[
+			'label' => esc_html__('Show Badge', 'textdomain'),
+			'type' => Controls_Manager::SWITCHER
+		]
+	);
+
+	$doc->add_control(
+		'badge_label',
+		[
+			'label' => esc_html__('Badge Label', 'textdomain'),
+			'type' => Controls_Manager::TEXT,
+            'default' => esc_html__('New', 'textdomain'),
+            'condition' => [
+                'show_badge' => 'yes'
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'badge_label_color',
+		[
+			'label' => esc_html__('Badge Label Color', 'textdomain'),
+			'type' => Controls_Manager::COLOR,
+            'default' => '#FFFFFF',
+    		'selectors' => [
+    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'color: {{VALUE}}',
+    		],
+            'condition' => [
+                'show_badge' => 'yes',
+                'badge_label!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'badge_bg_color',
+		[
+			'label' => esc_html__('Badge Background Color', 'textdomain'),
+			'type' => Controls_Manager::COLOR,
+            'default' => '#D30C5C',
+    		'selectors' => [
+    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'background-color: {{VALUE}};',
+    		],
+            'condition' => [
+                'show_badge' => 'yes',
+                'badge_label!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'badge_text_size',
+		[
+			'label' => esc_html__('Badge Font Size', 'textdomain'),
+			'type' => Controls_Manager::SLIDER,
+			'size_units' => ['px', 'em', 'rem'],
+			'range' => [
+				'px' => [
+					'min' => 8,
+					'max' => 100
+				],
+				'em' => [
+					'min' => 1,
+					'max' => 10
+				],
+				'rem' => [
+					'min' => 1,
+					'max' => 10
+				]
+			],
+			'default' => [
+				'unit' => 'px',
+				'size' => 12,
+			],
+			'selectors' => [
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'font-size: {{SIZE}}{{UNIT}} !important',
+			],
+            'condition' => [
+                'show_badge' => 'yes',
+                'badge_label!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'badge_offset_top',
+		[
+			'label' => esc_html__('Badge Offset Top', 'textdomain'),
+			'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px', '%'],
+			'range' => [
+				'px' => [
+					'min' => -100,
+					'max' => 100,
+					'step' => 1,
+				],
+				'%' => [
+					'min' => -100,
+					'max' => 100,
+				]
+			],
+			'default' => [
+				'size' => '-3',
+                'unit' => 'px'
+			],
+			'selectors' => [
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'top: {{SIZE}}{{UNIT}} !important;',
+			],
+            'condition' => [
+                'show_badge' => 'yes',
+                'badge_label!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'badge_offset_right',
+		[
+			'label' => esc_html__('Badge Offset Right', 'textdomain'),
+			'type' => Controls_Manager::SLIDER,
+            'size_units' => ['px', '%'],
+			'range' => [
+				'px' => [
+					'min' => -100,
+					'max' => 100,
+					'step' => 1,
+				],
+				'%' => [
+					'min' => -100,
+					'max' => 100,
+				]
+			],
+			'default' => [
+				'size' => '0',
+                'unit' => 'px'
+			],
+			'selectors' => [
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'right: {{SIZE}}{{UNIT}} !important;',
+			],
+            'condition' => [
+                'show_badge' => 'yes',
+                'badge_label!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'badge_padding',
+		[
+			'label' => esc_html__('Badge Padding', 'textdomain'),
+			'type' => Controls_Manager::DIMENSIONS,
+			'size_units' => ['px'],
+			'selectors' => [
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+			],
+            'condition' => [
+                'show_badge' => 'yes',
+                'badge_label!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'badge_border_radius',
+		[
+			'label' => esc_html__('Badge Border Radius', 'textdomain'),
+			'type' => Controls_Manager::DIMENSIONS,
+			'size_units' => ['px'],
+			'selectors' => [
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+			],
+            'condition' => [
+                'show_badge' => 'yes',
+                'badge_label!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'viewers',
+		[
+			'label' => esc_html__('Who Can See This?', 'textdomain'),
+            'label_block' => true,
+			'type' => Controls_Manager::SELECT2,
+            'multiple' => true,
+            'options' => $viewers,
+            'default' => 'anyone'
+		]
+	);
+
+    $doc->end_injection();
+}
+add_action('elementor/element/wp-post/document_settings/after_section_end', 'sc_mm4ep_register_elementor_menu_item_controls');
 
 /**
  * Ajax render item icon
@@ -182,203 +478,6 @@ function sc_mm4ep_on_deleting_menu_item()
     }
 }
 add_action('wp_ajax_delete-menu-item', 'sc_mm4ep_on_deleting_menu_item', 10, 0);
-
-/**
- * Register elemetor controls for menu item
- */
-function sc_mm4ep_register_elementor_menu_item_controls($doc)
-{
-    $post = $doc->get_post();
-
-    if ('elementor_menu_item' !== $post->post_type) {
-        return;
-    }
-
-    $viewers = ['anyone' => esc_html__('Anyone', 'textdomain')];
-    $roles = wp_roles()->roles;
-
-    foreach ($roles as $role => $cap) {
-        $viewers[$role] = $cap['name'];
-    }
-
-    $doc->remove_control('post_title');
-
-    remove_all_actions('elementor/documents/register_controls');
-
-	$doc->start_injection([
-		'of' => 'post_status'
-	]);
-
-	$doc->add_control(
-		'hide_on_mobile',
-		[
-			'label' => esc_html__('Hide On Mobile', 'textdomain'),
-			'type' => Controls_Manager::SWITCHER
-		]
-	);
-
-	$doc->add_control(
-		'hide_on_tablet',
-		[
-			'label' => esc_html__('Hide On Tablet', 'textdomain'),
-			'type' => Controls_Manager::SWITCHER
-		]
-	);
-
-	$doc->add_control(
-		'hide_on_desktop',
-		[
-			'label' => esc_html__('Hide On Desktop', 'textdomain'),
-			'type' => Controls_Manager::SWITCHER
-		]
-	);
-
-
-	$doc->add_control(
-		'is_mega',
-		[
-			'label' => esc_html__('Enable Mega Menu', 'textdomain'),
-			'type' => Controls_Manager::SWITCHER
-		]
-	);
-
-	$doc->add_control(
-		'mega_panel_width',
-		[
-			'label' => esc_html__('Mega Panel Width', 'textdomain'),
-			'type' => Controls_Manager::SLIDER,
-			'size_units' => ['%', 'vw', 'px'],
-			'range' => [
-				'%' => [
-					'min' => 30,
-					'max' => 100
-				],
-				'px' => [
-					'min' => 400,
-					'max' => 1920
-				]
-			],
-			'default' => [
-				'unit' => '%',
-				'size' => 100,
-			],
-			'selectors' => [
-				'#content-scope' => 'width: {{SIZE}}{{UNIT}};',
-			],
-            'condition' => [
-                'is_mega!' => ''
-            ]
-		]
-	);
-
-	$doc->add_control(
-		'icon',
-		[
-			'label' => esc_html__('Icon', 'textdomain'),
-			'label_block' => true,
-			'type' => Controls_Manager::ICONS
-		]
-	);
-
-	$doc->add_control(
-		'viewers',
-		[
-			'label' => esc_html__('Role & Restrictions', 'textdomain'),
-            'label_block' => true,
-			'type' => Controls_Manager::SELECT2,
-            'multiple' => true,
-            'options' => $viewers,
-            'default' => 'anyone'
-		]
-	);
-
-	$doc->add_control(
-		'show_badge',
-		[
-			'label' => esc_html__('Show Badge', 'textdomain'),
-			'type' => Controls_Manager::SWITCHER
-		]
-	);
-
-	$doc->add_control(
-		'badge_label',
-		[
-			'label' => esc_html__('Badge Label', 'textdomain'),
-			'type' => Controls_Manager::TEXT,
-            'default' => esc_html__('New', 'textdomain'),
-            'condition' => [
-                'show_badge' => 'yes'
-            ]
-		]
-	);
-
-	$doc->add_control(
-		'badge_label_color',
-		[
-			'label' => esc_html__('Badge Label Color', 'textdomain'),
-			'type' => Controls_Manager::COLOR,
-            'default' => '#FFFFFF',
-    		'selectors' => [
-    			'.elementor-nav-menu .current-menu-item > .menu-item-badge' => 'color: {{VALUE}} !important;',
-    		],
-            'condition' => [
-                'show_badge' => 'yes',
-                'badge_label!' => ''
-            ]
-		]
-	);
-
-	$doc->add_control(
-		'badge_bg_color',
-		[
-			'label' => esc_html__('Badge Background Color', 'textdomain'),
-			'type' => Controls_Manager::COLOR,
-            'default' => '#D30C5C',
-    		'selectors' => [
-    			'.elementor-nav-menu .current-menu-item > .menu-item-badge' => 'background-color: {{VALUE}} !important;',
-    		],
-            'condition' => [
-                'show_badge' => 'yes',
-                'badge_label!' => ''
-            ]
-		]
-	);
-
-	$doc->add_control(
-		'badge_padding',
-		[
-			'label' => esc_html__( 'Badge Padding', 'textdomain' ),
-			'type' => Controls_Manager::DIMENSIONS,
-			'size_units' => ['px'],
-			'selectors' => [
-				'.elementor-nav-menu .current-menu-item > .menu-item-badge' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
-			],
-            'condition' => [
-                'show_badge' => 'yes',
-                'badge_label!' => ''
-            ]
-		]
-	);
-
-	$doc->add_control(
-		'badge_border_radius',
-		[
-			'label' => esc_html__('Badge Border Radius', 'textdomain'),
-			'type' => Controls_Manager::DIMENSIONS,
-			'size_units' => ['px'],
-			'selectors' => [
-				'.elementor-nav-menu .current-menu-item > .menu-item-badge' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
-			],
-            'condition' => [
-                'show_badge' => 'yes',
-                'badge_label!' => ''
-            ]
-		]
-	);
-
-    $doc->end_injection();
-}
-add_action('elementor/element/wp-post/document_settings/after_section_end', 'sc_mm4ep_register_elementor_menu_item_controls');
 
 /**
  * Make shallow copies of nav menu data from editor data.

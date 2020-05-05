@@ -1,4 +1,11 @@
 <?php
+/**
+ * Copyright (c) SarahCoding <contact.sarahcoding@gmail.com>
+ *
+ * This source code is licensed under the license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+ 
 $elementor = Elementor\Plugin::$instance;
 $menu_id = get_post_meta($post->ID, 'mm4ep_menu_id', true);
 $item_id = get_post_meta($post->ID, 'mm4ep_menu_item_id', true);
@@ -22,7 +29,8 @@ $args = [
 $data_settings = json_encode([
     'layout' => $menu_settings['layout'],
     'toggle' => $menu_settings['toggle'],
-    'indicator' => $menu_settings['indicator']
+    'indicator' => $menu_settings['indicator'],
+    'full_width' => $menu_settings['full_width']
 ]);
 
 if ('vertical' === $menu_settings['layout']) {
@@ -56,7 +64,8 @@ if ('none' !== $menu_settings['dropdown']) {
     <?php wp_head(); ?>
     <style media="screen">
         body {
-            background-color: #495157
+            background-color: #495157;
+            padding: 1em;
         }
         .elementor-menu-toggle {
             color: #FFFFFF;

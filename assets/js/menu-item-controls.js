@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) SarahCoding <contact.sarahcoding@gmail.com>
+ *
+ * This source code is licensed under the license found in the
+ * LICENSE file in the root directory of this source tree.
+ */
+
 !function($) {
     "use strict";
 
@@ -12,15 +19,11 @@
         }
 
         function toggleMega(mega) {
-            const indicator = $("> .menu-item-link .sub-arrow", itemEl);
+            const indicator = $("> .menu-item-link > .sub-arrow", itemEl);
 
             if (mega) {
                 megaContent.show();
-                if (!indicator.length) {
-                    $("> .menu-item-link", itemEl).append('<span role="presentation" class="sub-arrow"><i class="fa"></i></span>');
-                } else {
-                    indicator.show();
-                }
+                indicator.show();
             } else {
                 megaContent.hide();
                 if (indicator.length && !item.isFlyout) {
@@ -65,14 +68,19 @@
 
         function toggleBadge(y) {
             const a = $("> .menu-item-link", itemEl),
-                b = $("> .menu-item-badge", itemEl);
+                b = $("> .menu-item-badge", a);
 
             if (y) {
                 if (b.length) {
                     b.css({display: "inline-block"});
                 } else {
-                    const bb = $('<span class="menu-item-badge" style="line-height:1;color:#fff;background-color:#D30C5C">' + scMmm4epI18n.new + '</span>');
-                    elementorCommonConfig.isRTL ? bb.insertBefore(a) : bb.insertAfter(a);
+                    const r = $("> .sub-arrow", a),
+                        g = '<span class="menu-item-badge" style="color:#fff;background-color:#D30C5C">' + scMmm4epI18n.new + '</span>';
+                    if (r.length) {
+                        $(g).insertBefore(r);
+                    } else {
+                        a.append(g);
+                    }
                 }
             } else {
                 b.length ? b.hide() : !1;
@@ -112,7 +120,7 @@
             }
 
             if (undefined !== a.badge_label) {
-                $("> .menu-item-badge", itemEl).text(a.badge_label);
+                $("> .menu-item-link > .menu-item-badge", itemEl).text(a.badge_label);
             }
         }
 
@@ -151,8 +159,8 @@
 
             $(".elementor-control-post_status", c).hide();
             $(".elementor-control-field-description", c).hide();
-            $("#elementor-panel-page-settings .elementor-tab-control-style").hide();
             $("#elementor-panel-header-title").html(scMmm4epI18n.menuItemSettings);
+            $("#elementor-panel-page-settings .elementor-panel-navigation").hide();
         }
 
         elementor.on("preview:loaded", () => {
@@ -185,6 +193,10 @@
                     collection._isRendered ? renderControls() : !1;
                 });
             });
+
+            if (isMega && !$("> .menu-item-link > .sub-arrow", itemEl).length) {
+                $("> .menu-item-link", itemEl).append('<span role="presentation" class="sub-arrow"><i class="fa"></i></span>');
+            }
 
             $("#elementor-mode-switcher-preview-input").on("change", onSwitchPreview);
 
