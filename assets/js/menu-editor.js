@@ -36,7 +36,7 @@ import MenuItemEditor from './menu-item-editor';
             });
         }
 
-        api.removeMenuItem = (el) => {
+        api.removeMenuItem = el => {
             const children = el.childMenuItems();
 
             $(document).trigger('menu-removing-item', [el]);
@@ -68,17 +68,7 @@ import MenuItemEditor from './menu-item-editor';
             });
         }
 
-        function toggleElementor(isElementor) {
-            if (isElementor) {
-                $el.itemEditButton.show();
-            } else {
-                $el.itemEditButton.hide();
-            }
-        }
-
         $("#update-nav-menu .menu-settings").append($("#mm4ep-settings").html());
-
-        $el.elementorCheckbox = $("#mm4ep-is-elementor");
 
         $("li", wpNavMenu.menuList).each(function(i) {
             const el = $(this);
@@ -89,11 +79,20 @@ import MenuItemEditor from './menu-item-editor';
         });
 
         $el.itemEditButton = $(".mm4ep-item-edit-btn");
+        $el.elementorCheckbox = $("#mm4ep-is-elementor");
 
-        toggleElementor($el.elementorCheckbox.is(":checked"));
+        $el.itemEditButton.toggle($el.elementorCheckbox.is(":checked"));
 
-        $(document).on("click", ".mm4ep-close-item-editor", e => $(".mm4ep-item-editor-popup").hide());
-        $el.elementorCheckbox.on("change", (e) => toggleElementor($(e.currentTarget).is(":checked")));
+        $(document).on(
+            "click",
+            ".mm4ep-close-item-editor",
+            e => $(".mm4ep-item-editor-popup").hide()
+        );
+
+        $el.elementorCheckbox.on(
+            "change",
+            e => $el.itemEditButton.toggle($(e.currentTarget).is(":checked"))
+        );
     }
 
     // DOM ready
