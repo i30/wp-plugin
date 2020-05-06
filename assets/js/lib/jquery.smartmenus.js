@@ -1114,7 +1114,7 @@
 				if (!('onorientationchange' in window) || e.type == 'orientationchange') {
 					var collapsible = this.isCollapsible();
 					// if it was collapsible before resize and still is, don't do it
-					if (!(this.wasCollapsible && collapsible)) { 
+					if (!(this.wasCollapsible && collapsible)) {
 						if (this.activatedItems.length) {
 							this.activatedItems[this.activatedItems.length - 1][0].blur();
 						}
@@ -1152,14 +1152,14 @@
 		return this.each(function() {
 			// [data-sm-options] attribute on the root UL
 			var dataOpts = $(this).data('sm-options') || null;
-			if (dataOpts) {
-				try {
-					dataOpts = eval('(' + dataOpts + ')');
-				} catch(e) {
-					dataOpts = null;
-					alert('ERROR\n\nSmartMenus jQuery init:\nInvalid "data-sm-options" attribute value syntax.');
-				};
-			}
+			// if (dataOpts) {
+			// 	try {
+			// 		dataOpts = eval('(' + dataOpts + ')');
+			// 	} catch(e) {
+			// 		dataOpts = null;
+			// 		alert('ERROR\n\nSmartMenus jQuery init:\nInvalid "data-sm-options" attribute value syntax.');
+			// 	};
+			// }
 			new $.SmartMenus(this, $.extend({}, $.fn.smartmenus.defaults, options, dataOpts));
 		});
 	};
