@@ -5,10 +5,11 @@
  * This source code is licensed under the license found in the
  * LICENSE file in the root directory of this source tree.
  */
- 
+
 $elementor = Elementor\Plugin::$instance;
 $menu_id = get_post_meta($post->ID, 'mm4ep_menu_id', true);
 $item_id = get_post_meta($post->ID, 'mm4ep_menu_item_id', true);
+$data_id = 'cicada3';
 $document = $elementor->documents->get_doc_for_frontend($post->ID);
 $menu_obj = get_term($menu_id, 'nav_menu');
 $stylesheet = get_option('stylesheet');
@@ -37,22 +38,23 @@ if ('vertical' === $menu_settings['layout']) {
 	$args['menu_class'] .= ' sm-vertical';
 }
 
-$menu_toggle_html_class = 'elementor-menu-toggle';
-$menu_container_html_class = 'elementor-nav-menu--main elementor-nav-menu__container';
-$menu_wrapper_html_class = 'elementor-element elementor-element-' . $menu_settings['el_id'] . ' elementor-nav-menu--indicator-' . $menu_settings['indicator'];
+$body_class = isset($menu_settings['post_id']) ? 'elementor-' . $menu_settings['post_id'] : '';
+$container_class = 'elementor-nav-menu--main elementor-nav-menu__container';
+$wrapper_class = 'elementor-element elementor-nav-menu--indicator-' . $menu_settings['indicator'];
 
-if ($elementor->editor->is_edit_mode()) {
-    $menu_toggle_html_class .= ' elementor-clickable';
+if (isset($menu_settings['el_id'])) {
+    $data_id = $menu_settings['el_id'];
+    $wrapper_class .= ' elementor-element-' . $menu_settings['el_id'];
 }
 
 if ('dropdown' !== $menu_settings['layout']) {
-    $menu_wrapper_html_class .= ' elementor-nav-menu__align-' . $menu_settings['align_items']
+    $wrapper_class .= ' elementor-nav-menu__align-' . $menu_settings['align_items']
     . ' elementor-nav-menu--dropdown-' . $menu_settings['dropdown']
     . ' elementor-nav-menu--toggle elementor-nav-menu--' . $menu_settings['toggle'];
 }
 
 if ('none' !== $menu_settings['dropdown']) {
-    $menu_wrapper_html_class .= ' elementor-nav-menu__text-align-' . $menu_settings['text_align'];
+    $wrapper_class .= ' elementor-nav-menu__text-align-' . $menu_settings['text_align'];
 }
 
 ?>
@@ -65,37 +67,44 @@ if ('none' !== $menu_settings['dropdown']) {
     <style media="screen">
         body {
             background-color: #495157;
-            padding: 1em;
+            padding: 2em;
         }
         .elementor-menu-toggle {
             color: #FFFFFF;
         }
+        #menu-scope, #content-scope {
+            box-sizing: border-box;
+            border: 2px dashed #d5dadf;
+        }
+        #content-scope {
+            margin-top: 10px;
+        }
     </style>
 </head>
-<body <?php body_class('elementor-' . $menu_settings['post_id']); ?>>
+<body <?php body_class($body_class); ?>>
 <div id="preview-scope">
-    <div id="menu-scope" class="<?php echo esc_attr($menu_wrapper_html_class) ?> elementor-widget elementor-widget-nav-menu" data-id="<?php echo esc_attr($menu_settings['el_id']) ?>" data-settings='<?php echo esc_js($data_settings) ?>' data-element_type="widget" data-widget_type="nav-menu.default">
+    <div id="menu-scope" class="<?php echo esc_attr($wrapper_class) ?> elementor-widget elementor-widget-nav-menu" data-id="<?php echo esc_attr($data_id) ?>" data-settings='<?php echo esc_js($data_settings) ?>' data-element_type="widget" data-widget_type="nav-menu.default">
         <div class="elementor-widget-container">
         <?php
         	if ('dropdown' !== $menu_settings['layout']) :
-        	$menu_container_html_class .= ' elementor-nav-menu--layout-' . $menu_settings['layout'];
+        	$container_class .= ' elementor-nav-menu--layout-' . $menu_settings['layout'];
         	if ($menu_settings['pointer']) {
-        		$menu_container_html_class .= ' e--pointer-' . $menu_settings['pointer'];
+        		$container_class .= ' e--pointer-' . $menu_settings['pointer'];
         		foreach ($menu_settings as $key => $value) {
         			if (0 === strpos($key, 'animation') && $value) {
-        				$menu_container_html_class .= ' e--animation-' . $value;
+        				$container_class .= ' e--animation-' . $value;
         				break;
                     }
                 }
             }
             ?>
-            <nav class="<?php echo esc_attr($menu_container_html_class) ?>">
+            <nav class="<?php echo esc_attr($container_class) ?>">
                 <?php wp_nav_menu($args); ?>
             </nav>
             <?php
         	endif;
         	?>
-        	<div role="button" tabindex="0" aria-label="<?php esc_attr_e('Menu Toggle', 'textdomain') ?>" aria-expanded="false" class="<?php echo esc_attr($menu_toggle_html_class) ?>">
+        	<div role="button" tabindex="0" aria-label="<?php esc_attr_e('Menu Toggle', 'textdomain') ?>" aria-expanded="false" class="elementor-menu-toggle  elementor-clickable">
         		<i class="eicon-menu-bar" aria-hidden="true"></i>
         		<span class="elementor-screen-only"><?php esc_html_e('Menu', 'textdomain'); ?></span>
         	</div>
