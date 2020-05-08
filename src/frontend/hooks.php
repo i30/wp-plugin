@@ -40,6 +40,7 @@ function sc_mm4ep_enqueue_frontend_assets()
         'isRTL' => is_rtl(),
         'isMobile' => wp_is_mobile(),
         'flyoutSubOffsetTop' => 0,
+        'viewportGutter' => 10
     ]);
 }
 add_action('wp_enqueue_scripts', 'sc_mm4ep_enqueue_frontend_assets', 0, 0);
