@@ -6,6 +6,19 @@ use Elementor\Icons_Manager;
 use Elementor\Core\Files\Assets\Svg\Svg_Handler;
 
 /**
+ * @return array
+ */
+function sc_mm4ep_get_config()
+{
+    return [
+        'isRTL' => is_rtl(),
+        'isMobile' => wp_is_mobile(),
+        'flyoutSubOffsetTop' => 0,
+        'viewportGutter' => 10
+    ];
+}
+
+/**
  * @return string
  */
 function sc_mm4ep_render_menu_item_icon(array $icon)

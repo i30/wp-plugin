@@ -736,7 +736,15 @@
                     });
                     // add sub indicator to parent item
                     if (this.opts.subIndicators) {
-                        $a[this.opts.subIndicatorsPos](this.$subArrow.clone());
+                        let indicator = this.$subArrow.clone();
+                        if ($a.hasClass('mega-item-link')) {
+                            let badge = $('> .menu-item-badge', $a);
+                            if (badge.length) {
+                                let offVal = 10 - badge.outerWidth();
+                                mm4epConfig.isRTL ? indicator.css({marginRight:offVal}) : indicator.css({marginLeft:offVal});
+                            }
+                        }
+                        $a[this.opts.subIndicatorsPos](indicator);
                     }
                 }
             },
@@ -765,23 +773,24 @@
 
                 // if (horizontalParent) {
                     if (2 === level && horizontalParent) {
-                        let css = {top:'auto'};
-                        const itemW2 = itemW/2, subW2 = subW/2;
+                        let css = {top:'auto'}, itemW2 = itemW/2, subW2 = subW/2;
                         if (mm4epConfig.isRTL) {
-                            const rightSpace = winW - itemOffset.left - itemW2;
-                            if (rightSpace <= subW2 ) { // Lean to the left, keep it in the viewport
-                                const offRight = rightSpace + itemW - 20;
-                                css.right = rightSpace;
+                            let rightSpace = winW - itemOffset.left - itemW2;
+                            if (rightSpace <= subW2 ) {
+                                // TODO: Shift sub to the left, keep it in the viewport
+                                let offRight = rightSpace - itemW2 - mm4epConfig.viewportGutter;
+                                css.right = 0;
                                 css.transform = 'translateX(' + offRight + 'px)';
                             } else {
                                 css.right = '50%';
                                 css.transform = 'translateX(50%)';
                             }
                         } else {
-                            const leftSpace = itemW2 + itemOffset.left;
-                            if (leftSpace <= subW2 ) { // Lean to the right, keep it in the viewport
-                                const offLeft = leftSpace + itemW;
-                                css.left = leftSpace;
+                            let leftSpace = itemW2 + itemOffset.left;
+                            if (leftSpace <= subW2 ) {
+                                // TODO: Shift sub to the right, keep it in the viewport
+                                let offLeft = itemOffset.left - mm4epConfig.viewportGutter;
+                                css.left = 0;
                                 css.transform = 'translateX(-' + offLeft + 'px)';
                             } else {
                                 css.left = '50%';

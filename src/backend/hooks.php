@@ -246,20 +246,15 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 		[
 			'label' => esc_html__('Badge Offset Top', 'textdomain'),
 			'type' => Controls_Manager::SLIDER,
-            'size_units' => ['px', '%'],
 			'range' => [
 				'px' => [
 					'min' => -200,
 					'max' => 200,
 					'step' => 1,
-				],
-				'%' => [
-					'min' => -100,
-					'max' => 100,
 				]
 			],
 			'default' => [
-				'size' => '-3',
+				'size' => 0,
                 'unit' => 'px'
 			],
 			'selectors' => [
@@ -272,30 +267,31 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 		]
 	);
 
+    if (is_rtl()) {
+        $dir = esc_html__('Right', 'textdomain');
+        $selectors['.current-menu-item > .menu-item-link > .menu-item-badge'] = 'margin-right:{{SIZE}}{{UNIT}} !important;';
+    } else {
+        $dir = esc_html__('Left', 'textdomain');
+        $selectors['.current-menu-item > .menu-item-link > .menu-item-badge'] = 'margin-left:{{SIZE}}{{UNIT}} !important;';
+    }
+
 	$doc->add_control(
-		'badge_offset_right',
+		'badge_offset_h',
 		[
-			'label' => esc_html__('Badge Offset Right', 'textdomain'),
+			'label' => esc_html__('Badge Offset', 'textdomain') . ' ' . $dir,
 			'type' => Controls_Manager::SLIDER,
-            'size_units' => ['px', '%'],
 			'range' => [
 				'px' => [
-					'min' => -200,
-					'max' => 200,
+					'min' => -300,
+					'max' => 300,
 					'step' => 1,
-				],
-				'%' => [
-					'min' => -100,
-					'max' => 100,
 				]
 			],
 			'default' => [
 				'size' => '0',
                 'unit' => 'px'
 			],
-			'selectors' => [
-				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'right:{{SIZE}}{{UNIT}} !important;',
-			],
+			'selectors' => $selectors,
             'condition' => [
                 'show_badge' => 'yes',
                 'badge_label!' => ''
@@ -380,6 +376,8 @@ function sc_mm4ep_enqueue_editor_scripts()
         'new' => esc_html__('New', 'textdomain'),
         'menuItemSettings' => esc_html__('Menu Item Settings', 'textdomain')
     ]);
+
+    wp_localize_script('menu-item-controls', 'mm4epConfig', sc_mm4ep_get_config());
 }
 add_action('elementor/editor/after_enqueue_scripts', 'sc_mm4ep_enqueue_editor_scripts', 10, 0);
 

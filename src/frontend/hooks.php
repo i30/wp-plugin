@@ -36,12 +36,7 @@ function sc_mm4ep_enqueue_frontend_assets()
 
     // wp_enqueue_script('mm4ep-frontend', ELEMENTOR_PRO_MEGAMENU_URI . 'assets/js/frontend.min.js', ['elementor-pro-frontend'], ELEMENTOR_PRO_MEGAMENU_VER, true);
 
-    wp_localize_script('smartmenus', 'mm4epConfig', [
-        'isRTL' => is_rtl(),
-        'isMobile' => wp_is_mobile(),
-        'flyoutSubOffsetTop' => 0,
-        'viewportGutter' => 10
-    ]);
+    wp_localize_script('smartmenus', 'mm4epConfig', sc_mm4ep_get_config());
 }
 add_action('wp_enqueue_scripts', 'sc_mm4ep_enqueue_frontend_assets', 0, 0);
 

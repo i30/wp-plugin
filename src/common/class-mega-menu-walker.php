@@ -101,7 +101,6 @@ final class MegaMenuWalker extends Walker_Nav_Menu
         }
 
         $html_classes = join(' ', array_filter($classes));
-        $html_classes = $content ? $html_classes . ' elementor-mega-item' : $html_classes;
 
         $output .= '<li class="' . esc_attr($html_classes) . '">';
 
@@ -112,8 +111,8 @@ final class MegaMenuWalker extends Walker_Nav_Menu
 
         $attributes = '';
 
-        if (!isset($atts['class'])) {
-            $atts['class'] = '';
+        if ($content) {
+            $atts['class'] .= ' mega-item-link';
         }
 
         $is_anchor = false !== strpos($atts['href'], '#');
@@ -253,8 +252,12 @@ final class MegaMenuWalker extends Walker_Nav_Menu
             $style .= ';top:' . $settings['badge_offset_top']['size'] . $settings['badge_offset_top']['unit'];
         }
 
-        if (!empty($settings['badge_offset_right'])) {
-            $style .= ';right:' . $settings['badge_offset_right']['size'] . $settings['badge_offset_right']['unit'];
+        if (!empty($settings['badge_offset_h'])) {
+            if ($this->is_rtl) {
+                $style .= ';margin-right:' . $settings['badge_offset_h']['size'] . 'px';
+            } else {
+                $style .= ';margin-left:' . $settings['badge_offset_h']['size'] . 'px';
+            }
         }
 
         $output .= ' style="' . esc_attr($style) . '">' . esc_html($settings['badge_label']) . '</span>';

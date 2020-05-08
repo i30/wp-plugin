@@ -11,6 +11,18 @@
     function ElementorMenuItemEditor(item) {
         let itemEl, isMega, device = "desktop", megaPanel, menuContainer;
 
+        function repositionIndicator() {
+            let style = '',
+                badge = $("> .menu-item-link > .menu-item-badge", itemEl),
+                indicator = $("> .menu-item-link > .sub-arrow", itemEl);
+            if (badge.length && badge.is(":visible")) {
+                let offVal = 10 - badge.outerWidth();
+                elementorCommonConfig.isRTL ? indicator.css({marginRight:offVal}) : indicator.css({marginLeft:offVal});
+            } else {
+                elementorCommonConfig.isRTL ? indicator.css({marginRight:0}) : indicator.css({marginLeft:0});
+            }
+        }
+
         function toggleTitle(y) {
             const a = $("> .menu-item-link", itemEl),
                 l = $(".menu-item-label", a);
@@ -118,6 +130,10 @@
         }
 
         function resizeMegaPanel(width) {
+            if (device === 'mobile') {
+                megaPanel.css({width:'100%', 'margin-left': 'auto'});
+                return;
+            }
             if (width.unit === 'px') {
                 megaPanel.css({width:width.size, 'margin-left': 'auto'});
             } else {
@@ -125,7 +141,7 @@
                 if ($fitEl.length === 1) {
                     megaPanel.css({width:width.size * $fitEl.outerWidth() / 100, 'margin-left': 'auto'});
                 } else {
-                    console.log('Fit-to element not found in the editor. Fall back to menu widget container');
+                    // console.log('Fit-to element not found in the editor. Fall back to menu widget container');
                     megaPanel.css({width:width.size * menuContainer.outerWidth() / 100, 'margin-left': 'auto'});
                 }
             }
@@ -161,10 +177,19 @@
 
             if (undefined !== a.show_badge) {
                 toggleBadge(a.show_badge);
+                repositionIndicator();
             }
 
             if (a.badge_label) {
                 $("> .menu-item-link > .menu-item-badge", itemEl).text(a.badge_label);
+            }
+
+            if (a.badge_padding) {
+                setTimeout(() => repositionIndicator(), 50);
+            }
+
+            if (a.badge_text_size) {
+                setTimeout(() => repositionIndicator(), 50);
             }
 
             if (a.mega_panel_fit) {
@@ -189,6 +214,8 @@
                 default:
                     hideOnDevice("desktop", elementor.settings.page.model.get("hide_on_desktop"));
             }
+
+            setTimeout(() => resizeMegaPanel(elementor.settings.page.model.get("mega_panel_width")), 600);
         }
 
         function onSwitchPreview(e) {
@@ -199,6 +226,8 @@
             } else {
                 closeEditorButton.fadeIn()
             }
+
+            setTimeout(() =>             resizeMegaPanel(elementor.settings.page.model.get("mega_panel_width")), 600);
         }
 
         function renderControls() {
@@ -233,7 +262,8 @@
             itemEl.addClass("current-menu-item");
 
             if (isMega && !$("> .menu-item-link > .sub-arrow", itemEl).length) {
-                $("> .menu-item-link", itemEl).append('<span role="presentation" class="sub-arrow"><i class="fa"></i></span>');
+                $("> .menu-item-link", itemEl).append('<span class="sub-arrow"><i class="fa"></i></span>');
+                repositionIndicator();
             }
 
             $("> .menu-item-link", itemEl).addClass("elementor-item-active");
