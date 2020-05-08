@@ -9,7 +9,9 @@ import "../scss/frontend.scss";
 (function($){
     "use strict";
 
-    function abc() {
-        1;
-    }
+    // function MegaNavMenu(menu) {
+    //     const $el = menu;
+    //
+    //     function
+    // }
 }(jQuery))

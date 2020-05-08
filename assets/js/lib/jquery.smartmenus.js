@@ -761,100 +761,44 @@
                     rightToLeft = this.opts.rightToLeftSubMenus && !$li.is('[data-sm-reverse]') || !this.opts.rightToLeftSubMenus && $li.is('[data-sm-reverse]'),
                     subOffsetX = level == 2 ? this.opts.mainMenuSubOffsetX : this.opts.subMenusSubOffsetX,
                     subOffsetY = level == 2 ? this.opts.mainMenuSubOffsetY : this.opts.subMenusSubOffsetY,
-                    x, y;
-                if (horizontalParent) {
-                    x = rightToLeft ? itemW - subW - subOffsetX : subOffsetX;
-                    y = this.opts.bottomToTopSubMenus ? -subH - subOffsetY : itemH + subOffsetY;
-                } else {
-                    x = rightToLeft ? subOffsetX - subW : itemW - subOffsetX;
-                    y = this.opts.bottomToTopSubMenus ? itemH - subOffsetY - subH : subOffsetY;
-                }
-                if (this.opts.keepInViewport) {
-                    var absX = itemX + x,
-                        absY = itemY + y;
-                    if (rightToLeft && absX < winX) {
-                        x = horizontalParent ? winX - absX + x : itemW - subOffsetX;
-                    } else if (!rightToLeft && absX + subW > winX + winW) {
-                        x = horizontalParent ? winX + winW - subW - absX + x : subOffsetX - subW;
-                    }
-                    if (!horizontalParent) {
-                        if (subH < winH && absY + subH > winY + winH) {
-                            y += winY + winH - subH - absY;
-                        } else if (subH >= winH || absY < winY) {
-                            y += winY - absY;
+                    x = y = '50%';
+
+                // if (horizontalParent) {
+                    if (2 === level) {
+                        let css = {top:'100%'};
+                        const itemW2 = itemW/2, subW2 = subW/2;
+                        if (mm4epConfig.isRTL) {
+                            const rightSpace = winW - itemOffset.left - itemW2;
+                            if (rightSpace <= subW2 ) { // Lean to the left
+                                const offRight = rightSpace + itemW - 20;
+                                css.right = rightSpace;
+                                css.transform = 'translateX(' + offRight + 'px)';
+                            } else {
+                                css.right = '50%';
+                                css.transform = 'translateX(50%)';
+                            }
+                        } else {
+                            const leftSpace = itemW2 + itemOffset.left;
+                            if (leftSpace <= subW2 ) { // Lean to the right
+                                const offLeft = leftSpace + itemW - 14;
+                                css.left = leftSpace;
+                                css.transform = 'translateX(-' + offLeft + 'px)';
+                            } else {
+                                css.left = '50%';
+                                css.transform = 'translateX(-50%)';
+                            }
                         }
+                        $sub.css(css);
+                    } else {
+                        let css = {
+                            top:mm4epConfig.flyoutSubOffsetTop
+                        };
+                        mm4epConfig.isRTL ? css.right = '100%' : css.left = '100%';
+                        $sub.css(css);
                     }
-                    // do we need scrolling?
-                    // 0.49 used for better precision when dealing with float values
-                    if (horizontalParent && (absY + subH > winY + winH + 0.49 || absY < winY) || !horizontalParent && subH > winH + 0.49) {
-                        var self = this;
-                        if (!$sub.dataSM('scroll-arrows')) {
-                            $sub.dataSM('scroll-arrows', $([$('<span class="scroll-up"><span class="scroll-up-arrow"></span></span>')[0], $('<span class="scroll-down"><span class="scroll-down-arrow"></span></span>')[0]])
-                                .on({
-                                    mouseenter: function() {
-                                        $sub.dataSM('scroll').up = $(this).hasClass('scroll-up');
-                                        self.menuScroll($sub);
-                                    },
-                                    mouseleave: function(e) {
-                                        self.menuScrollStop($sub);
-                                        self.menuScrollOut($sub, e);
-                                    },
-                                    'mousewheel DOMMouseScroll': function(e) {
-                                        e.preventDefault();
-                                    }
-                                })
-                                .insertAfter($sub)
-                            );
-                        }
-                        // bind scroll events and save scroll data for this sub
-                        var eNS = '.smartmenus_scroll';
-                        $sub.dataSM('scroll', {
-                                y: this.cssTransforms3d ? 0 : y - itemH,
-                                step: 1,
-                                // cache stuff for faster recalcs later
-                                itemH: itemH,
-                                subH: subH,
-                                arrowDownH: this.getHeight($sub.dataSM('scroll-arrows').eq(1))
-                            })
-                            .on(getEventsNS({
-                                'mouseover': function(e) {
-                                    self.menuScrollOver($sub, e);
-                                },
-                                'mouseout': function(e) {
-                                    self.menuScrollOut($sub, e);
-                                },
-                                'mousewheel DOMMouseScroll': function(e) {
-                                    self.menuScrollMousewheel($sub, e);
-                                }
-                            }, eNS))
-                            .dataSM('scroll-arrows').css({
-                                top: 'auto',
-                                left: '0',
-                                marginLeft: x + (parseInt($sub.css('border-left-width')) || 0),
-                                width: subW - (parseInt($sub.css('border-left-width')) || 0) - (parseInt($sub.css('border-right-width')) || 0),
-                                zIndex: $sub.css('z-index')
-                            })
-                            .eq(horizontalParent && this.opts.bottomToTopSubMenus ? 0 : 1).show();
-                        // when a menu tree is fixed positioned we allow scrolling via touch too
-                        // since there is no other way to access such long sub menus if no mouse is present
-                        if (this.isFixed()) {
-                            var events = {};
-                            events[touchEvents ? 'touchstart touchmove touchend' : 'pointerdown pointermove pointerup MSPointerDown MSPointerMove MSPointerUp'] = function(e) {
-                                self.menuScrollTouch($sub, e);
-                            };
-                            $sub.css({
-                                'touch-action': 'none',
-                                '-ms-touch-action': 'none'
-                            }).on(getEventsNS(events, eNS));
-                        }
-                    }
-                }
-                $sub.css({
-                    top: 'auto',
-                    left: '0',
-                    marginLeft: x,
-                    marginTop: y - itemH
-                });
+                // } else {
+                //
+                // }
             },
             menuScroll: function($sub, once, step) {
                 var data = $sub.dataSM('scroll'),
@@ -1041,23 +985,44 @@
                     } else {
                         // set z-index
                         $sub.css('z-index', this.zIndexInc = (this.zIndexInc || this.getStartZIndex()) + 1);
-                        // min/max-width fix - no way to rely purely on CSS as all UL's are nested
-                        if (this.opts.subMenusMinWidth || this.opts.subMenusMaxWidth) {
-                            $sub.css({
-                                width: 'auto',
-                                minWidth: '',
-                                maxWidth: ''
-                            }).addClass('sm-nowrap');
-                            if (this.opts.subMenusMinWidth) {
-                                $sub.css('min-width', this.opts.subMenusMinWidth);
+                        // scAdded
+                        if ($sub.hasClass('elementor-mega-panel') && !mm4epConfig.isMobile) {
+                            let fitW;
+                            const fit = $sub.data('fit'),
+                                menuW = this.$root.outerWidth(),
+                                containerW = this.$root.parent('.elementor-nav-menu__container').outerWidth();
+                            switch (fit) {
+                                case 'container':
+                                    fitW = containerW;
+                                    break;
+                                case 'viewport':
+                                    new elementorModules.frontend.tools.StretchElement({
+                                      element: $sub
+                                    }).stretch();
+                                    break;
+                                case 'custom':
+                                    const fitEl = $sub.data('fitEl'),
+                                        fitV = parseInt($sub.data('width'));
+                                    if (fitEl) {
+                                        const $fitEl = $(fitEl);
+                                        if ($fitEl.length === 1) {
+                                            fitW = fitV * $fitEl.outerWidth() / 100;
+                                        } else {
+                                            throw TypeError('Invalid fit-to element.');
+                                        }
+                                    } else {
+                                        fitW = fitV * containerW / 100;
+                                    }
+                                    break;
+                                case 'auto':
+                                    fitW = 'auto';
+                                    break;
+                                default:
+                                    fitW = menuW;
                             }
-                            if (this.opts.subMenusMaxWidth) {
-                                var noMaxWidth = this.getWidth($sub);
-                                $sub.css('max-width', this.opts.subMenusMaxWidth);
-                                if (noMaxWidth > this.getWidth($sub)) {
-                                    $sub.removeClass('sm-nowrap').css('width', this.opts.subMenusMaxWidth);
-                                }
-                            }
+                            $sub.css({width: fitW});
+                        } else {
+                            $sub.css({width: 'auto'});
                         }
                         this.menuPosition($sub);
                     }
@@ -1245,14 +1210,14 @@
         return this.each(function() {
             // [data-sm-options] attribute on the root UL
             var dataOpts = $(this).data('sm-options') || null;
-            // if (dataOpts) {
+            // if (dataOpts) { scComment
             // 	try {
             // 		dataOpts = eval('(' + dataOpts + ')');
             // 	} catch(e) {
             // 		dataOpts = null;
             // 		alert('ERROR\n\nSmartMenus jQuery init:\nInvalid "data-sm-options" attribute value syntax.');
             // 	};
-            // }
+            // } /scComment
             new $.SmartMenus(this, $.extend({}, $.fn.smartmenus.defaults, options, dataOpts));
         });
     };

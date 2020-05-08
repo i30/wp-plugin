@@ -60,13 +60,9 @@ final class MegaMenuWalker extends Walker_Nav_Menu
      */
     public function start_el(&$output, $item, $depth = 0, $args = null, $id = 0)
     {
-        if (!$this->menu_settings['is_elementor']) {
-            return;
-        }
-
-        $atts = [];
+        $atts = ['class' => 'menu-item-link'];
         $content = false;
-        $settings = $this->getItemSettings($item->ID);
+        $settings = sc_mm4ep_get_item_settings($item->ID);
 
         if (!empty($settings['viewers']) && !$this->isItemViewable($settings['viewers'])) {
             return;
@@ -105,7 +101,7 @@ final class MegaMenuWalker extends Walker_Nav_Menu
         }
 
         $html_classes = join(' ', array_filter($classes));
-        $html_classes = $content ? $html_classes . ' elementor-mega-menu-item' : $html_classes;
+        $html_classes = $content ? $html_classes . ' elementor-mega-item' : $html_classes;
 
         $output .= '<li class="' . esc_attr($html_classes) . '">';
 
@@ -124,7 +120,6 @@ final class MegaMenuWalker extends Walker_Nav_Menu
 
         foreach ($atts as $attr => $value) {
             if ($attr === 'class') {
-                $value = $value ? $value : 'menu-item-link';
                 if ($depth) {
                     $value .= ' elementor-sub-item';
                 } else {
@@ -174,12 +169,19 @@ final class MegaMenuWalker extends Walker_Nav_Menu
         $output .= '</a>';
 
         if ($content) {
-            $output .= '<ul class="sub-menu elementor-nav-menu--dropdown">';
-            $output .= '<li class="menu-item mega-menu-item">';
-            $mega_style = !$this->is_mobile ? 'width:' . $settings['mega_panel_width']['size'] . $settings['mega_panel_width']['unit'] . ';' : '';
-            $output .= '<div class="elementor-mega-menu-content" style="' . esc_attr($mega_style) . '">';
-            $output .= sprintf('<div class="elementor-mega-menu-content-inner">%s</div>', $content);
-            $output .= '</div>';
+            $data_fit = $data_width = $data_fit_el = '';
+            if (!empty($settings['mega_panel_fit'])) {
+                $data_fit = ' data-fit="'.$settings['mega_panel_fit'].'"';
+                if ('custom' === $settings['mega_panel_fit']) {
+                    $data_width = ' data-width="' . $settings['mega_panel_width']['size'] . $settings['mega_panel_width']['unit'] . '"';
+                    if ($settings['mega_fit_to_el']) {
+                        $data_fit_el = ' data-fit-el="' . $settings['mega_fit_to_el'] . '"';
+                    }
+                }
+            }
+            $output .= '<ul class="sub-menu elementor-mega-panel"'.$data_fit.$data_fit_el.$data_width.'>';
+            $output .= '<li class="elementor-mega-content">';
+            $output .= sprintf('<div class="elementor-mega-content-inner">%s</div>', $content);
             $output .= '</li>';
             $output .= '</ul>';
         }
@@ -197,41 +199,6 @@ final class MegaMenuWalker extends Walker_Nav_Menu
     public function end_el(&$output, $item, $depth = 0, $args = [])
     {
         $output .= '</li>';
-    }
-
-    /**
-     * Get item settings
-     *
-     * @param    int    $id    Item's ID.
-     *
-     * @return    array    $settings
-     */
-    private function getItemSettings($item_id)
-    {
-        $default = [
-            'icon' => '',
-            'is_mega' => '',
-            'hide_title' => '',
-            'viewers' => ['anyone'],
-            'hide_on_mobile' => '',
-            'hide_on_tablet' => '',
-            'hide_on_desktop' => '',
-            'show_badge' => '',
-            'bagde_label' => esc_html__('New', 'textdomain'),
-            'bagde_label_color' => '#FFFFFF',
-            'bagde_bg_color' => '#D30C5C',
-            'bagde_border_radius' => [],
-            'mega_panel_width' => ['unit' => '%', 'size' => 100]
-        ];
-
-        $elementor_item_id = get_post_meta($item_id, 'mm4ep_elementor_menu_item_id', true);
-
-        if ($elementor_item_id) {
-            $menu_item_settings = get_post_meta($elementor_item_id, '_elementor_page_settings', true);
-            return array_merge($default, (array)$menu_item_settings);
-        }
-
-        return $default;
     }
 
     /**

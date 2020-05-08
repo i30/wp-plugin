@@ -5,9 +5,9 @@ module.exports = {
   mode: 'production',
   context: __dirname + '/assets',
   entry: {
-    'frontend': './js/frontend.js',
+    // 'frontend': './js/frontend.js',
     // 'menu-editor': './js/menu-editor.js',
-    'menu-item-editor': './js/menu-item-editor.js',
+    // 'menu-item-editor': './js/menu-item-editor.js',
     'menu-item-controls': './js/menu-item-controls.js'
   },
   output: {

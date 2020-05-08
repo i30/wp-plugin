@@ -61,7 +61,6 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 		]
 	);
 
-
 	$doc->add_control(
 		'is_mega',
 		[
@@ -70,20 +69,67 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 		]
 	);
 
+	// $doc->add_control(
+	// 	'is_popup',
+	// 	[
+	// 		'label' => esc_html__('Is Popup', 'textdomain'),
+    //         'description' => __('Display mega content as a popup.', 'textdomain'),
+	// 		'type' => Controls_Manager::SWITCHER,
+    //         'condition' => [
+    //             'is_mega!' => ''
+    //         ]
+	// 	]
+	// );
+
+	$doc->add_control(
+		'mega_panel_fit',
+		[
+			'label' => esc_html__('Mega Panel Fits To', 'textdomain'),
+			'type' => Controls_Manager::SELECT,
+            'label_block' => true,
+            'default' => 'container',
+            'options' => [
+                'menu' => __('Root UL element', 'textdomain'),
+                'container' => __('Nav menu container', 'textdomain'),
+                'viewport' => __('Device screen, viewport', 'textdomain'),
+                'auto' => __('Auto, as big as content', 'textdomain'),
+                'custom' => __('Custom', 'textdomain')
+            ],
+            'condition' => [
+                'is_mega!' => ''
+            ]
+		]
+	);
+
+	$doc->add_control(
+		'mega_fit_to_el',
+		[
+			'label' => esc_html__('Fit-To Element', 'textdomain'),
+            'description' => __('Enter a unique CSS selector of the element you want to sync the width with mega panel. Default is the nav menu container.', 'textdomain'),
+			'type' => Controls_Manager::TEXT,
+            'placeholder' => 'E.g. #element-123',
+            'condition' => [
+                'is_mega!' => '',
+                'mega_panel_fit' => 'custom'
+            ]
+		]
+	);
+
 	$doc->add_control(
 		'mega_panel_width',
 		[
 			'label' => esc_html__('Mega Panel Width', 'textdomain'),
+            'description' => __('In horizontal menus, % width is relative to outer width of the fit-to element. In vertical menus, % width is inapplicable, mega panel will be as wide as content or a fixed px value.', 'textdomain'),
 			'type' => Controls_Manager::SLIDER,
-			'size_units' => ['%', 'vw', 'px'],
+			'size_units' => ['%', 'px'],
 			'range' => [
 				'%' => [
 					'min' => 30,
 					'max' => 100
 				],
-				'px' => [
-					'min' => 400,
-					'max' => 1920
+                'px' => [
+					'min' => 300,
+					'max' => 1200
 				]
 			],
 			'default' => [
@@ -91,10 +137,11 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 				'size' => 100,
 			],
 			'selectors' => [
-				'#content-scope' => 'width: {{SIZE}}{{UNIT}};',
+				'#content-scope' => 'width:{{SIZE}}{{UNIT}};',
 			],
             'condition' => [
-                'is_mega!' => ''
+                'is_mega!' => '',
+                'mega_panel_fit' => 'custom'
             ]
 		]
 	);
@@ -135,7 +182,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 			'type' => Controls_Manager::COLOR,
             'default' => '#FFFFFF',
     		'selectors' => [
-    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'color: {{VALUE}}',
+    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'color:{{VALUE}}',
     		],
             'condition' => [
                 'show_badge' => 'yes',
@@ -151,7 +198,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 			'type' => Controls_Manager::COLOR,
             'default' => '#D30C5C',
     		'selectors' => [
-    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'background-color: {{VALUE}};',
+    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'background-color:{{VALUE}};',
     		],
             'condition' => [
                 'show_badge' => 'yes',
@@ -185,7 +232,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 				'size' => 12,
 			],
 			'selectors' => [
-				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'font-size: {{SIZE}}{{UNIT}} !important',
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'font-size:{{SIZE}}{{UNIT}} !important',
 			],
             'condition' => [
                 'show_badge' => 'yes',
@@ -202,8 +249,8 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
             'size_units' => ['px', '%'],
 			'range' => [
 				'px' => [
-					'min' => -100,
-					'max' => 100,
+					'min' => -200,
+					'max' => 200,
 					'step' => 1,
 				],
 				'%' => [
@@ -216,7 +263,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
                 'unit' => 'px'
 			],
 			'selectors' => [
-				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'top: {{SIZE}}{{UNIT}} !important;',
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'top:{{SIZE}}{{UNIT}} !important;',
 			],
             'condition' => [
                 'show_badge' => 'yes',
@@ -233,8 +280,8 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
             'size_units' => ['px', '%'],
 			'range' => [
 				'px' => [
-					'min' => -100,
-					'max' => 100,
+					'min' => -200,
+					'max' => 200,
 					'step' => 1,
 				],
 				'%' => [
@@ -247,7 +294,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
                 'unit' => 'px'
 			],
 			'selectors' => [
-				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'right: {{SIZE}}{{UNIT}} !important;',
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'right:{{SIZE}}{{UNIT}} !important;',
 			],
             'condition' => [
                 'show_badge' => 'yes',
@@ -263,7 +310,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 			'type' => Controls_Manager::DIMENSIONS,
 			'size_units' => ['px'],
 			'selectors' => [
-				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'padding:{{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
 			],
             'condition' => [
                 'show_badge' => 'yes',
@@ -279,7 +326,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 			'type' => Controls_Manager::DIMENSIONS,
 			'size_units' => ['px'],
 			'selectors' => [
-				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+				'.current-menu-item > .menu-item-link > .menu-item-badge' => 'border-radius:{{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
 			],
             'condition' => [
                 'show_badge' => 'yes',
@@ -360,39 +407,7 @@ function sc_mm4ep_print_edit_scripts()
         'schema_markup' => 0
     ], $settings);
 
-    ?>
-    <script type="text/template" id="mm4ep-item-editor-popup">
-        <div class="mm4ep-item-editor-popup"></div>
-    </script>
-    <script type="text/template" id="mm4ep-settings">
-        <div class="mm4ep-settings">
-            <h3><?php esc_html_e('Elementor Mega Menu Settings', 'textdomain'); ?></h3>
-            <fieldset class="menu-settings-group">
-                <legend class="menu-settings-group-name howto"><?php esc_html_e('Elementor', 'textdomain'); ?></legend>
-                <div class="menu-settings-input checkbox-input">
-                    <input id="mm4ep-is-elementor" type="checkbox" value="1" <?php checked($settings['is_elementor'], 1) ?> name="sc_mm4ep_settings[is_elementor]">
-                    <label for="mm4ep-is-elementor"><?php esc_html_e('Make menu items editable with Elementor or not.', 'textdomain') ?></label>
-                </div>
-            </fieldset>
-            <fieldset class="menu-settings-group">
-                <legend class="menu-settings-group-name howto"><?php esc_html_e('Schema markup', 'textdomain'); ?></legend>
-                <div class="menu-settings-input checkbox-input">
-                    <input id="mm4ep-schema-markup" type="checkbox" value="1" <?php checked($settings['schema_markup'], 1) ?> name="sc_mm4ep_settings[schema_markup]">
-                    <label for="mm4ep-schema-markup"><?php echo sprintf(esc_html__('Whether to add %sschema markups%s or not.', 'textdomain'), '<a href="https://schema.org/SiteNavigationElement">', '</a>') ?></label>
-                </div>
-            </fieldset>
-        </div>
-    </script>
-    <script type="text/javascript">
-        const scMmm4epConfig = <?php echo json_encode([
-                'editUrl' => admin_url('?cmm4e-edit-menu-item=true')
-            ]) ?>,
-            scMmm4epI18n = {
-              "edit": "<?php esc_html_e('Edit', 'textdomain') ?>"
-            }
-    </script>
-    <script defer src="<?php echo ELEMENTOR_PRO_MEGAMENU_URI . 'assets/js/menu-editor.min.js' ?>"></script>
-    <?php
+    require ELEMENTOR_PRO_MEGAMENU_DIR . 'src/templates/menu-settings.php';
 }
 add_action('admin_footer-nav-menus.php', 'sc_mm4ep_print_edit_scripts', 10, 0);
 

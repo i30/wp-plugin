@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-!function($) {
+(function($) {
     "use strict";
 
     function ElementorMenuItemEditor(item) {
-        let itemEl, isMega, device = "desktop", megaContent;
+        let itemEl, isMega, device = "desktop", megaPanel, menuContainer;
 
         function toggleTitle(y) {
             const a = $("> .menu-item-link", itemEl),
@@ -22,10 +22,10 @@
             const indicator = $("> .menu-item-link > .sub-arrow", itemEl);
 
             if (mega) {
-                megaContent.show();
+                megaPanel.show();
                 indicator.show();
             } else {
-                megaContent.hide();
+                megaPanel.hide();
                 if (indicator.length && !item.isFlyout) {
                     indicator.hide();
                 }
@@ -37,12 +37,12 @@
 
             if (hide) {
                 if (isMega) {
-                    megaContent.hide();
+                    megaPanel.hide();
                 }
                 itemEl.hide();
             } else {
                 if (isMega) {
-                    megaContent.show();
+                    megaPanel.show();
                 }
                 itemEl.show();
             }
@@ -87,6 +87,50 @@
             }
         }
 
+        function fitMegaPanel(fit) {
+            switch (fit) {
+                case 'menu':
+                    megaPanel.css({width:$("> .elementor-nav-menu--main > .elementor-nav-menu", menuContainer).outerWidth(), 'margin-left': 'auto'});
+                    break;
+                case 'viewport':
+                    megaPanel.css({width:'100vw', 'margin-left': '-2em'});
+                    break;
+                case 'auto':
+                    megaPanel.css({width:'auto', 'margin-left': 'auto'});
+                    break;
+                case 'custom':
+                    const fitW = elementor.settings.page.model.get("mega_panel_width");
+                        if (fitW.unit === 'px') {
+                            megaPanel.css({width:fitW.size, 'margin-left': 'auto'});
+                        } else {
+                            const $fitEl = $(elementor.settings.page.model.get("mega_fit_to_el"), menuContainer);
+                            if ($fitEl.length === 1) {
+                                megaPanel.css({width:fitW.size * $fitEl.outerWidth() / 100, 'margin-left': 'auto'});
+                            } else {
+                                console.log('Fit-to element not found in the editor. Fall back to menu widget container');
+                                megaPanel.css({width:fitW.size * menuContainer.outerWidth() / 100, 'margin-left': 'auto'});
+                            }
+                        }
+                    break;
+                default:
+                    megaPanel.css('width', menuContainer.outerWidth());
+            }
+        }
+
+        function resizeMegaPanel(width) {
+            if (width.unit === 'px') {
+                megaPanel.css({width:width.size, 'margin-left': 'auto'});
+            } else {
+                const $fitEl = $(elementor.settings.page.model.get("mega_fit_to_el"), menuContainer);
+                if ($fitEl.length === 1) {
+                    megaPanel.css({width:width.size * $fitEl.outerWidth() / 100, 'margin-left': 'auto'});
+                } else {
+                    console.log('Fit-to element not found in the editor. Fall back to menu widget container');
+                    megaPanel.css({width:width.size * menuContainer.outerWidth() / 100, 'margin-left': 'auto'});
+                }
+            }
+        }
+
         function onSettingsChange(data) {
             const a = data.changed;
 
@@ -111,7 +155,7 @@
                 hideOnDevice("desktop", a.hide_on_desktop);
             }
 
-            if (undefined !== a.icon) {
+            if (a.icon) {
                 setIcon(a.icon);
             }
 
@@ -119,8 +163,16 @@
                 toggleBadge(a.show_badge);
             }
 
-            if (undefined !== a.badge_label) {
+            if (a.badge_label) {
                 $("> .menu-item-link > .menu-item-badge", itemEl).text(a.badge_label);
+            }
+
+            if (a.mega_panel_fit) {
+                fitMegaPanel(a.mega_panel_fit);
+            }
+
+            if (a.mega_panel_width) {
+                resizeMegaPanel(a.mega_panel_width);
             }
         }
 
@@ -158,32 +210,36 @@
             }
 
             $(".elementor-control-post_status", c).hide();
-            $(".elementor-control-field-description", c).hide();
             $("#elementor-panel-header-title").html(scMmm4epI18n.menuItemSettings);
             $("#elementor-panel-page-settings .elementor-panel-navigation").hide();
+            $(".elementor-control-hide_title .elementor-control-field-description", c).hide();
         }
 
         elementor.on("preview:loaded", () => {
+            isMega = elementor.settings.page.model.get("is_mega");
+            device = elementor.channels.deviceMode.request("currentMode");
             itemEl = $(".menu-item-" + item.itemId, elementor.$previewContents);
-            megaContent = $("#content-scope", elementor.$previewContents);
+            megaPanel = $("#content-scope", elementor.$previewContents);
+            menuContainer = $("#menu-scope > .elementor-widget-container", elementor.$previewContents);
 
             if (item.isChild) {
                 itemEl.parents(".sub-menu").show();
             }
 
-            if (item.isFlyout || item.isChild) {
-                megaContent.hide();
+            if (item.isFlyout || item.isChild || !isMega) {
+                megaPanel.hide();
             }
 
             itemEl.addClass("current-menu-item");
+
+            if (isMega && !$("> .menu-item-link > .sub-arrow", itemEl).length) {
+                $("> .menu-item-link", itemEl).append('<span role="presentation" class="sub-arrow"><i class="fa"></i></span>');
+            }
 
             $("> .menu-item-link", itemEl).addClass("elementor-item-active");
         });
 
         elementor.on("document:loaded", () => {
-            isMega = elementor.settings.page.model.get("is_mega");
-            device = elementor.channels.deviceMode.request("currentMode");
-
             elementor.channels.deviceMode.on("change", onDeviceChange);
 
             elementor.settings.page.model.on("change", onSettingsChange);
@@ -194,10 +250,6 @@
                 });
             });
 
-            if (isMega && !$("> .menu-item-link > .sub-arrow", itemEl).length) {
-                $("> .menu-item-link", itemEl).append('<span role="presentation" class="sub-arrow"><i class="fa"></i></span>');
-            }
-
             $("#elementor-mode-switcher-preview-input").on("change", onSwitchPreview);
 
             setTimeout(() => $e.route("panel/page-settings/settings"), 1000);
@@ -205,4 +257,4 @@
     }
 
     $(() => new ElementorMenuItemEditor(top.currentMenuItem));
-}(jQuery);
+}(jQuery));

@@ -29,39 +29,28 @@ function sc_mm4ep_render_menu_item_icon(array $icon)
 /**
  * @return array
  */
-function sc_mm4ep_get_items_settings($menu_id)
+function sc_mm4ep_get_item_settings($item_id)
 {
-    $items = wp_get_nav_menu_items($menu_id, [
-        'no_found_rows' => true,
-        'suppress_filters' => true,
-        'update_post_meta_cache' => false,
-        'update_post_term_cache' => false
-    ]);
+    $elementor_item_id = get_post_meta($item_id, 'mm4ep_elementor_menu_item_id', true);
 
-    $menu_items = [];
-
-    if ($items) {
-        foreach ($items as $item) {
-            $elementor_item_id = get_post_meta($item->ID, 'mm4ep_elementor_menu_item_id', true);
-            $menu_items[$item->ID] = array_merge([
-                'icon' => [],
-                'is_mega' => 0,
-                'hide_title' => 0,
-                'viewers' => ['anyone'],
-                'hide_on_mobile' => 0,
-                'hide_on_tablet' => 0,
-                'hide_on_desktop' => 0,
-                'show_badge' => 0,
-                'badge_label' => esc_html__('New', 'textdomain'),
-                'badge_label_color' => '#FFFFFF',
-                'badge_bg_color' => '#D30C5C',
-                'badge_bd_radius' => [],
-                'mega_panel_width' => ['unit' => '%', 'size' => 100]
-            ], (array)get_post_meta($elementor_item_id, '_elementor_page_settings', true));
-        }
-    }
-
-    return $menu_items;
+    return array_merge([
+        'icon' => [],
+        'is_mega' => 0,
+        'viewers' => ['anyone'],
+        'show_badge' => 0,
+        'hide_title' => 0,
+        'badge_label' => esc_html__('New', 'textdomain'),
+        'badge_bg_color' => '#D30C5C',
+        'hide_on_mobile' => 0,
+        'hide_on_tablet' => 0,
+        'badge_bd_radius' => [],
+        'hide_on_desktop' => 0,
+        'mega_panel_fit' => 'container',
+        'mega_fit_to_el' => '',
+        'mega_panel_width' => ['unit' => '%', 'size' => 100],
+        'badge_label_color' => '#FFFFFF',
+        'mega_panel_stretch' => '',
+    ], (array)get_post_meta($elementor_item_id, '_elementor_page_settings', true));
 }
 
 /**
@@ -71,17 +60,17 @@ function sc_mm4ep_parse_nav_menu_settings(array $settings)
 {
     return array_merge([
         'layout' => 'horizontal',
-        'align_items' => 'left',
+        'toggle' => 'burger',
         'pointer' => 'underline',
+        'dropdown' => 'tablet',
+        'indicator' => 'classic',
+        'full_width' => '',
+        'text_align' => 'aside',
+        'align_items' => 'left',
+        'toggle_align' => 'center',
+        'animation_text' => 'grow',
         'animation_line' => 'fade',
         'animation_framed' => 'fade',
         'animation_background' => 'fade',
-        'animation_text' => 'grow',
-        'indicator' => 'classic',
-        'dropdown' => 'tablet',
-        'full_width' => '',
-        'text_align' => 'aside',
-        'toggle' => 'burger',
-        'toggle_align' => 'center'
     ], $settings);
 }
