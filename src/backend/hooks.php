@@ -502,7 +502,7 @@ function sc_mm4ep_extract_navmenu_data($post_id, $data)
     $ss = get_option('stylesheet');
     $post = get_post($post_id);
 
-    if ('elementor_menu_item' === $post->post_type) {
+    if ('elementor_menu_item' === $post->post_type || 'publish' !== $post->post_status) {
         return;
     }
 
