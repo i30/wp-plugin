@@ -44,6 +44,7 @@ $wrapper_class = 'elementor-element elementor-nav-menu--indicator-' . $menu_sett
 
 if (isset($menu_settings['el_id'])) {
     $data_id = $menu_settings['el_id'];
+    $args['menu_id'] = 'menu-1-' . $menu_settings['el_id'];
     $wrapper_class .= ' elementor-element-' . $menu_settings['el_id'];
 }
 
@@ -78,6 +79,9 @@ if ('none' !== $menu_settings['dropdown']) {
         }
         #content-scope {
             margin-top: 10px;
+            margin-right: auto;
+            margin-bottom: 0;
+            margin-left: auto;
         }
     </style>
 </head>
@@ -109,7 +113,13 @@ if ('none' !== $menu_settings['dropdown']) {
         		<span class="elementor-screen-only"><?php esc_html_e('Menu', 'textdomain'); ?></span>
         	</div>
         	<nav class="elementor-nav-menu--dropdown elementor-nav-menu__container" role="navigation" aria-hidden="true">
-                <?php $args['menu_id'] = 'menu-2-' . $post->ID; wp_nav_menu($args); ?>
+            <?php
+                $args['menu_id'] = 'menu-2-' . $post->ID;
+                if (isset($menu_settings['el_id'])) {
+                    $args['menu_id'] = 'menu-2-' . $menu_settings['el_id'];
+                }
+                wp_nav_menu($args);
+            ?>
             </nav>
         </div>
     </div>
