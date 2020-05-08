@@ -162,10 +162,6 @@ final class MegaMenuWalker extends Walker_Nav_Menu
             $output .= $this->getItemBadge($settings);
         }
 
-        // if ($content && $this->is_preview) {
-        //     $output .= '<span role="presentation" class="sub-arrow"><i class="fa"></i></span>';
-        // }
-
         $output .= '</a>';
 
         if ($content) {
