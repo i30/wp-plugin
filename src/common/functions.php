@@ -67,10 +67,6 @@ function sc_mm4ep_parse_nav_menu_settings(array $settings)
         'full_width' => '',
         'text_align' => 'aside',
         'align_items' => 'left',
-        'toggle_align' => 'center',
-        'animation_text' => 'grow',
-        'animation_line' => 'fade',
-        'animation_framed' => 'fade',
-        'animation_background' => 'fade',
+        'toggle_align' => 'center'
     ], $settings);
 }

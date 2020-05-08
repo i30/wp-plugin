@@ -97,7 +97,7 @@ if ('none' !== $menu_settings['dropdown']) {
         		foreach ($menu_settings as $key => $value) {
         			if (0 === strpos($key, 'animation') && $value) {
         				$container_class .= ' e--animation-' . $value;
-        				break;
+                        break;
                     }
                 }
             }
