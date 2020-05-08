@@ -1,3 +1,12 @@
+.elementor-nav-menu--main {
+    border: 1px solid red !important;
+    > .elementor-nav-menu {
+        border: 1px solid blue !important;
+        .elementor-mega-panel {
+            border: 1px solid green !important;
+        }
+    }
+}
 .elementor-nav-menu {
     .menu-item-icon {
         margin-right: .3em;

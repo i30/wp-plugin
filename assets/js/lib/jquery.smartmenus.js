@@ -764,12 +764,12 @@
                     x = y = '50%';
 
                 // if (horizontalParent) {
-                    if (2 === level) {
-                        let css = {top:'100%'};
+                    if (2 === level && horizontalParent) {
+                        let css = {top:'auto'};
                         const itemW2 = itemW/2, subW2 = subW/2;
                         if (mm4epConfig.isRTL) {
                             const rightSpace = winW - itemOffset.left - itemW2;
-                            if (rightSpace <= subW2 ) { // Lean to the left
+                            if (rightSpace <= subW2 ) { // Lean to the left, keep it in the viewport
                                 const offRight = rightSpace + itemW - 20;
                                 css.right = rightSpace;
                                 css.transform = 'translateX(' + offRight + 'px)';
@@ -779,8 +779,8 @@
                             }
                         } else {
                             const leftSpace = itemW2 + itemOffset.left;
-                            if (leftSpace <= subW2 ) { // Lean to the right
-                                const offLeft = leftSpace + itemW - 14;
+                            if (leftSpace <= subW2 ) { // Lean to the right, keep it in the viewport
+                                const offLeft = leftSpace + itemW;
                                 css.left = leftSpace;
                                 css.transform = 'translateX(-' + offLeft + 'px)';
                             } else {
@@ -790,9 +790,8 @@
                         }
                         $sub.css(css);
                     } else {
-                        let css = {
-                            top:mm4epConfig.flyoutSubOffsetTop
-                        };
+                        // Maybe try to keep in the viewport later.
+                        let css = {top:mm4epConfig.flyoutSubOffsetTop};
                         mm4epConfig.isRTL ? css.right = '100%' : css.left = '100%';
                         $sub.css(css);
                     }
@@ -966,7 +965,8 @@
                 }
                 if (!$sub.is(':visible')) {
                     // highlight parent item
-                    var $a = $sub.dataSM('parent-a'),
+                    var fitW = false,
+                        $a = $sub.dataSM('parent-a'),
                         collapsible = this.isCollapsible();
                     if (this.opts.keepHighlighted || collapsible) {
                         $a.addClass('highlighted');
@@ -983,22 +983,33 @@
                             marginTop: ''
                         });
                     } else {
-                        // set z-index
                         $sub.css('z-index', this.zIndexInc = (this.zIndexInc || this.getStartZIndex()) + 1);
-                        // scAdded
                         if ($sub.hasClass('elementor-mega-panel') && !mm4epConfig.isMobile) {
-                            let fitW;
                             const fit = $sub.data('fit'),
-                                menuW = this.$root.outerWidth(),
-                                containerW = this.$root.parent('.elementor-nav-menu__container').outerWidth();
+                                $aOffSet = $a.offset(),
+                                menuOffset = this.$root.offset(),
+                                container = this.$root.parent('.elementor-nav-menu__container'),
+                                containerOffset = container.offset();
                             switch (fit) {
-                                case 'container':
-                                    fitW = containerW;
+                                case 'menu':
+                                console.log($aOffSet.left, menuOffset.left);
+                                    fitW = false;
+                                    let offLeft = $aOffSet.left - menuOffset.left;
+                                    $sub.css({
+                                        top: 'auto',
+                                        width: this.$root.outerWidth(),
+                                        left: '-' + offLeft + 'px'
+                                    });
                                     break;
                                 case 'viewport':
                                     new elementorModules.frontend.tools.StretchElement({
                                       element: $sub
                                     }).stretch();
+                                    fitW = false;
+                                    $sub.css({
+                                        top: 'auto',
+                                        left: '-' + $aOffSet.left + 'px'
+                                    });
                                     break;
                                 case 'custom':
                                     const fitEl = $sub.data('fitEl'),
@@ -1011,20 +1022,34 @@
                                             throw TypeError('Invalid fit-to element.');
                                         }
                                     } else {
-                                        fitW = fitV * containerW / 100;
+                                        fitW = fitV * container.outerWidth() / 100;
                                     }
                                     break;
                                 case 'auto':
-                                    fitW = 'auto';
+                                    fitW = false;
+                                    $sub.css({
+                                        top: 'auto',
+                                        width: 'auto',
+                                        left: '50%',
+                                        transform: 'translateX(-50%)'
+                                    });
                                     break;
                                 default:
-                                    fitW = menuW;
+                                    fitW = false;
+                                    let offLef = $aOffSet.left - containerOffset.left;
+                                    $sub.css({
+                                        top: 'auto',
+                                        width: container.outerWidth(),
+                                        left: '-' + offLef + 'px'
+                                    });
                             }
-                            $sub.css({width: fitW});
                         } else {
-                            $sub.css({width: 'auto'});
+                            fitW = 'auto';
                         }
-                        this.menuPosition($sub);
+                        if (fitW) {
+                            $sub.css({width:fitW});
+                            this.menuPosition($sub)
+                        }
                     }
                     var complete = function() {
                         // fix: "overflow: hidden;" is not reset on animation complete in jQuery < 1.9.0 in Chrome when global "box-sizing: border-box;" is used

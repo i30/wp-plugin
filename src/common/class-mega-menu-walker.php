@@ -179,7 +179,7 @@ final class MegaMenuWalker extends Walker_Nav_Menu
                     }
                 }
             }
-            $output .= '<ul class="sub-menu elementor-mega-panel"'.$data_fit.$data_fit_el.$data_width.'>';
+            $output .= '<ul class="sub-menu elementor-mega-panel elementor-nav-menu--dropdown"'.$data_fit.$data_fit_el.$data_width.'>';
             $output .= '<li class="elementor-mega-content">';
             $output .= sprintf('<div class="elementor-mega-content-inner">%s</div>', $content);
             $output .= '</li>';

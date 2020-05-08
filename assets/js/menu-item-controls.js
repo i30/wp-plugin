@@ -113,7 +113,7 @@
                         }
                     break;
                 default:
-                    megaPanel.css('width', menuContainer.outerWidth());
+                    megaPanel.css({width:menuContainer.outerWidth() + 4,'margin-left': 'auto', 'margin-right': 'auto'});
             }
         }
 
@@ -237,6 +237,8 @@
             }
 
             $("> .menu-item-link", itemEl).addClass("elementor-item-active");
+
+            fitMegaPanel(elementor.settings.page.model.get("mega_panel_fit"));
         });
 
         elementor.on("document:loaded", () => {
