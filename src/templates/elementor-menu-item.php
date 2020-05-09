@@ -18,6 +18,10 @@ $menu_settings = get_option($stylesheet . '_mod_sc_mm4ep_' . $menu_obj->slug, []
 $menu_settings = sc_mm4ep_parse_nav_menu_settings($menu_settings);
 $elementor->frontend->add_body_class('elementor-template-full-width');
 
+$body_class = isset($menu_settings['post_id']) ? 'elementor-' . $menu_settings['post_id'] : '';
+$container_class = 'elementor-nav-menu--main elementor-nav-menu__container';
+$wrapper_class = 'elementor-element elementor-nav-menu--indicator-' . $menu_settings['indicator'];
+
 $args = [
 	'echo' => true,
 	'menu' => $menu_id,
@@ -35,12 +39,9 @@ $data_settings = json_encode([
 ]);
 
 if ('vertical' === $menu_settings['layout']) {
+    $body_class .= ' vertical-menu';
 	$args['menu_class'] .= ' sm-vertical';
 }
-
-$body_class = isset($menu_settings['post_id']) ? 'elementor-' . $menu_settings['post_id'] : '';
-$container_class = 'elementor-nav-menu--main elementor-nav-menu__container';
-$wrapper_class = 'elementor-element elementor-nav-menu--indicator-' . $menu_settings['indicator'];
 
 if (isset($menu_settings['el_id'])) {
     $data_id = $menu_settings['el_id'];
@@ -76,12 +77,28 @@ if ('none' !== $menu_settings['dropdown']) {
         #menu-scope, #content-scope {
             box-sizing: border-box;
             border: 2px dashed #d5dadf;
+            margin-bottom: 2px;
         }
         #content-scope {
-            margin-top: 10px;
+            margin-top: 0;
             margin-right: auto;
             margin-bottom: 0;
             margin-left: auto;
+        }
+        .vertical-menu #preview-scope {
+            display: flex;
+        }
+        .vertical-menu #menu-scope {
+            width: -webkit-fit-content;
+            width: -moz-fit-content;
+            width: fit-content;
+            margin-bottom: 0;
+            margin-right: 2px;
+        }
+        .vertical-menu #content-scope {
+            margin: 0;
+            width: auto;
+            min-width: 300px;
         }
     </style>
 </head>

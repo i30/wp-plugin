@@ -40,7 +40,7 @@ final class MegaMenuWalker extends Walker_Nav_Menu
      */
     public function start_lvl(&$output, $depth = 0, $args = [])
     {
-        $output .= '<ul class="sub-menu elementor-nav-menu--dropdown">';
+        $output .= '<ul class="sub-menu sub-menu-lv-' . $depth . ' elementor-nav-menu--dropdown">';
     }
 
     /**
@@ -91,13 +91,15 @@ final class MegaMenuWalker extends Walker_Nav_Menu
         }
 
         $classes[] = 'menu-item-' . $item->ID;
+        $classes[] = 'sub-item-lv-' . $depth;
 
-        if ('yes' === $settings['is_mega'] && !$this->is_preview) {
+        if ('yes' === $settings['is_mega']) {
             $content = $this->getItemContent($item->ID);
         }
 
         if ($content) {
             $atts['aria-haspopup'] = 'true';
+            $atts['class'] .= ' mega-item-link';
         }
 
         $html_classes = join(' ', array_filter($classes));
@@ -110,10 +112,6 @@ final class MegaMenuWalker extends Walker_Nav_Menu
         $atts['target'] = !empty($item->target) ? $item->target : '';
 
         $attributes = '';
-
-        if ($content) {
-            $atts['class'] .= ' mega-item-link';
-        }
 
         $is_anchor = false !== strpos($atts['href'], '#');
 
@@ -205,6 +203,10 @@ final class MegaMenuWalker extends Walker_Nav_Menu
      */
     private function getItemContent($item_id)
     {
+        if ($GLOBALS['post']->post_type == 'elementor_menu_item') {
+            return '';
+        }
+
         $elementor_item_id = get_post_meta($item_id, 'mm4ep_elementor_menu_item_id', true);
 
         if ($elementor_item_id) {

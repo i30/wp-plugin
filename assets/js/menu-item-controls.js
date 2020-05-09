@@ -9,12 +9,12 @@
     "use strict";
 
     function ElementorMenuItemEditor(item) {
-        let itemEl, isMega, device = "desktop", megaPanel, menuContainer;
+        let device = "desktop", megaPanel, menuContainer;
 
         function repositionIndicator() {
             let style = '',
-                badge = $("> .menu-item-link > .menu-item-badge", itemEl),
-                indicator = $("> .menu-item-link > .sub-arrow", itemEl);
+                badge = $("> .menu-item-link > .menu-item-badge", item.$el),
+                indicator = $("> .menu-item-link > .sub-arrow", item.$el);
             if (badge.length && badge.is(":visible")) {
                 let offVal = 10 - badge.outerWidth();
                 elementorCommonConfig.isRTL ? indicator.css({marginRight:offVal}) : indicator.css({marginLeft:offVal});
@@ -24,14 +24,14 @@
         }
 
         function toggleTitle(y) {
-            const a = $("> .menu-item-link", itemEl),
+            let a = $("> .menu-item-link", item.$el),
                 l = $(".menu-item-label", a);
 
             y ? (!0, l.length && l.hide()) : (!1, l.length ? l.show() : a.append('<span class="menu-item-label">' + item.itemTitle + "</span>"))
         }
 
         function toggleMega(mega) {
-            const indicator = $("> .menu-item-link > .sub-arrow", itemEl);
+            let indicator = $("> .menu-item-link > .sub-arrow", item.$el);
 
             if (mega) {
                 megaPanel.show();
@@ -45,23 +45,23 @@
         }
 
         function hideOnDevice(d, y) {
-            const hide = y && d === device;
+            let hide = y && d === device;
 
             if (hide) {
-                if (isMega) {
+                if (item.isMega) {
                     megaPanel.hide();
                 }
-                itemEl.hide();
+                item.$el.hide();
             } else {
-                if (isMega) {
+                if (item.isMega) {
                     megaPanel.show();
                 }
-                itemEl.show();
+                item.$el.show();
             }
         }
 
         function setIcon(icon) {
-            const itemLink = $("> .menu-item-link", itemEl),
+            let itemLink = $("> .menu-item-link", item.$el),
                 itemIcon = $(".menu-item-icon", itemLink),
                 data = {
                     'action': 'mm4ep_render_menu_item_icon',
@@ -79,14 +79,14 @@
         }
 
         function toggleBadge(y) {
-            const a = $("> .menu-item-link", itemEl),
+            let a = $("> .menu-item-link", item.$el),
                 b = $("> .menu-item-badge", a);
 
             if (y) {
                 if (b.length) {
                     b.css({display: "inline-block"});
                 } else {
-                    const r = $("> .sub-arrow", a),
+                    let r = $("> .sub-arrow", a),
                         g = '<span class="menu-item-badge" style="color:#fff;background-color:#D30C5C">' + scMmm4epI18n.new + '</span>';
                     if (r.length) {
                         $(g).insertBefore(r);
@@ -115,7 +115,7 @@
                         if (fitW.unit === 'px') {
                             megaPanel.css({width:fitW.size, 'margin-left': 'auto'});
                         } else {
-                            const $fitEl = $(elementor.settings.page.model.get("mega_fit_to_el"), menuContainer);
+                            let $fitEl = $(elementor.settings.page.model.get("mega_fit_to_el"), menuContainer);
                             if ($fitEl.length === 1) {
                                 megaPanel.css({width:fitW.size * $fitEl.outerWidth() / 100, 'margin-left': 'auto'});
                             } else {
@@ -148,14 +148,14 @@
         }
 
         function onSettingsChange(data) {
-            const a = data.changed;
+            let a = data.changed;
 
             if (undefined !== a.hide_title) {
                 toggleTitle(a.hide_title);
             }
 
             if (undefined !== a.is_mega) {
-                isMega = a.is_mega;
+                item.isMega = a.is_mega;
                 toggleMega(a.is_mega);
             }
 
@@ -181,7 +181,7 @@
             }
 
             if (a.badge_label) {
-                $("> .menu-item-link > .menu-item-badge", itemEl).text(a.badge_label);
+                $("> .menu-item-link > .menu-item-badge", item.$el).text(a.badge_label);
             }
 
             if (a.badge_padding) {
@@ -215,11 +215,13 @@
                     hideOnDevice("desktop", elementor.settings.page.model.get("hide_on_desktop"));
             }
 
-            setTimeout(() => resizeMegaPanel(elementor.settings.page.model.get("mega_panel_width")), 600);
+            if (item.settings.layout != 'vertical') {
+                setTimeout(() => resizeMegaPanel(elementor.settings.page.model.get("mega_panel_width")), 600);
+            }
         }
 
         function onSwitchPreview(e) {
-            const closeEditorButton = $(top.document).find(".mm4ep-close-item-editor");
+            let closeEditorButton = $(top.document).find(".mm4ep-close-item-editor");
 
             if ($(e.currentTarget).is(":checked")) {
                 closeEditorButton.fadeOut();
@@ -227,15 +229,25 @@
                 closeEditorButton.fadeIn()
             }
 
-            setTimeout(() =>             resizeMegaPanel(elementor.settings.page.model.get("mega_panel_width")), 600);
+            if (item.settings.layout != 'vertical') {
+                let fit = elementor.settings.page.model.get("mega_panel_fit");
+                if ("custom" != fit) {
+                    setTimeout(() => fitMegaPanel(fit), 600);
+                } else {
+                    setTimeout(() => resizeMegaPanel(elementor.settings.page.model.get("mega_panel_width")), 600);
+                }
+            }
         }
 
         function renderControls() {
-            const c = $("#elementor-panel-page-settings-controls"),
-                isMegaControl = $(".elementor-control-is_mega", c);
+            let c = $("#elementor-panel-page-settings-controls");
+
+            if (item.settings.layout == 'vertical') {
+                $(".elementor-control-mega_panel_fit select", c).attr("disabled", true);
+            }
 
             if (item.isFlyout || item.isChild) {
-                isMegaControl.hide();
+                $(".elementor-control-is_mega", c).hide();
             }
 
             $(".elementor-control-post_status", c).hide();
@@ -245,30 +257,49 @@
         }
 
         elementor.on("preview:loaded", () => {
-            isMega = elementor.settings.page.model.get("is_mega");
             device = elementor.channels.deviceMode.request("currentMode");
-            itemEl = $(".menu-item-" + item.itemId, elementor.$previewContents);
             megaPanel = $("#content-scope", elementor.$previewContents);
             menuContainer = $("#menu-scope > .elementor-widget-container", elementor.$previewContents);
+            item.$el = $(".menu-item-" + item.itemId, elementor.$previewContents);
+            item.isMega = elementor.settings.page.model.get("is_mega");
+            item.settings = $("#menu-scope", elementor.$previewContents).data("settings");
 
             if (item.isChild) {
-                itemEl.parents(".sub-menu").show();
+                let css = {
+                    left:'50%',
+                    transform: 'translateX(-50%)',
+                    width: 'auto'
+                };
+                if (mm4epConfig.isRTL) {
+                    css = {
+                        right:'50%',
+                        transform: 'translateX(50%)',
+                        width: 'auto'
+                    }
+                }
+                item.$el.parents('.sub-menu-lv-0').css(css);
+                let subSub = item.$el.parents('.sub-menu:not(.sub-menu-lv-0)');
+                subSub.css({width: 'auto', top: mm4epConfig.flyoutSubOffsetTop});
+                mm4epConfig.isRTL ? subSub.css('right', '100%') : subSub.css('left', '100%');
+                item.$el.parents(".sub-menu").show();
             }
 
-            if (item.isFlyout || item.isChild || !isMega) {
+            if (item.isFlyout || item.isChild || !item.isMega) {
                 megaPanel.hide();
             }
 
-            itemEl.addClass("current-menu-item");
+            item.$el.addClass("current-menu-item");
 
-            if (isMega && !$("> .menu-item-link > .sub-arrow", itemEl).length) {
-                $("> .menu-item-link", itemEl).append('<span class="sub-arrow"><i class="fa"></i></span>');
+            if (item.isMega && !$("> .menu-item-link > .sub-arrow", item.$el).length) {
+                $("> .menu-item-link", item.$el).append('<span class="sub-arrow"><i class="fa"></i></span>');
                 repositionIndicator();
             }
 
-            $("> .menu-item-link", itemEl).addClass("elementor-item-active");
+            $("> .menu-item-link", item.$el).addClass("elementor-item-active");
 
-            fitMegaPanel(elementor.settings.page.model.get("mega_panel_fit"));
+            if ('vertical' != item.settings.layout) {
+                fitMegaPanel(elementor.settings.page.model.get("mega_panel_fit"));
+            }
         });
 
         elementor.on("document:loaded", () => {

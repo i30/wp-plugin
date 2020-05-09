@@ -105,7 +105,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 		'mega_fit_to_el',
 		[
 			'label' => esc_html__('Fit-To Element', 'textdomain'),
-            'description' => __('Enter a unique CSS selector of the element you want to sync the width with mega panel. Default is the nav menu container.', 'textdomain'),
+            'description' => __('Enter a unique CSS selector of the element you want to sync the width with mega panel. Default is nav menu container.', 'textdomain'),
 			'type' => Controls_Manager::TEXT,
             'placeholder' => 'E.g. #element-123',
             'condition' => [
@@ -119,7 +119,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 		'mega_panel_width',
 		[
 			'label' => esc_html__('Mega Panel Width', 'textdomain'),
-            'description' => __('In horizontal menus, % width is relative to outer width of the fit-to element. In vertical menus, % width is inapplicable, mega panel will be as wide as content or a fixed px value.', 'textdomain'),
+            'description' => __('In horizontal menus, % width is relative to outer width of the fit-to element. In vertical menus, % width is inapplicable, mega panel will be as wide as content.', 'textdomain'),
 			'type' => Controls_Manager::SLIDER,
 			'size_units' => ['%', 'px'],
 			'range' => [
@@ -182,7 +182,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 			'type' => Controls_Manager::COLOR,
             'default' => '#FFFFFF',
     		'selectors' => [
-    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'color:{{VALUE}}',
+    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'color:{{VALUE}} !important',
     		],
             'condition' => [
                 'show_badge' => 'yes',
@@ -198,7 +198,7 @@ function sc_mm4ep_register_elementor_menu_item_controls($doc)
 			'type' => Controls_Manager::COLOR,
             'default' => '#D30C5C',
     		'selectors' => [
-    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'background-color:{{VALUE}};',
+    			'.current-menu-item > .menu-item-link > .menu-item-badge' => 'background-color:{{VALUE}} !important',
     		],
             'condition' => [
                 'show_badge' => 'yes',

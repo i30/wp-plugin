@@ -21,13 +21,19 @@ function sc_mm4ep_enqueue_frontend_assets()
 
     wp_add_inline_style('mm4ep-frontend', '
         @media (min-width: ' . $breakpoints['lg'] . 'px) {
-            .elementor-nav-menu--dropdown-tablet .elementor-nav-menu--main .sub-menu a {
+            .elementor-nav-menu--dropdown-tablet .elementor-nav-menu--main .sub-menu .menu-item-link {
                 border-left: none;
+            }
+            .rtl .elementor-nav-menu--dropdown-tablet .elementor-nav-menu--main .sub-menu .menu-item-link {
+                border-right: none;
             }
         }
         @media (min-width: ' . $breakpoints['md'] . 'px) {
-            .elementor-nav-menu--dropdown-mobile .elementor-nav-menu--main .sub-menu a {
+            .elementor-nav-menu--dropdown-mobile .elementor-nav-menu--main .sub-menu .menu-item-link {
                 border-left: none;
+            }
+            .rtl .elementor-nav-menu--dropdown-mobile .elementor-nav-menu--main .sub-menu .menu-item-link {
+                border-right: none;
             }
         }
     ');

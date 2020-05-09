@@ -7,8 +7,10 @@
         }
     }
 }
+
 .elementor-nav-menu {
     .menu-item-icon {
+        margin-left: 0;
         margin-right: .3em;
     }
     .menu-item-badge {
@@ -45,6 +47,7 @@
     .elementor-nav-menu {
         .menu-item-icon {
             margin-left: .3em;
+            margin-right: 0;
         }
     }
 }
