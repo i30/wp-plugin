@@ -34,8 +34,12 @@
             let indicator = $("> .menu-item-link > .sub-arrow", item.$el);
 
             if (mega) {
+                if (!indicator.length) {
+                    $("> .menu-item-link", item.$el).append('<span class="sub-arrow"><i class="fa"></i></span>');
+                } else {
+                    indicator.show();                    
+                }
                 megaPanel.show();
-                indicator.show();
             } else {
                 megaPanel.hide();
                 if (indicator.length && !item.isFlyout) {
